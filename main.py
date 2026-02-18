@@ -21,6 +21,7 @@ CORS(app, resources={
         r"/api/*": {
             "origins": [
             "http://localhost:3000", # Local
+            "https://topbox-mvp.vercel.app" # Prod
             ],
             "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
             "allow_headers": ["Content-Type", "Authorization"],
