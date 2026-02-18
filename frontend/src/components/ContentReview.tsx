@@ -40,7 +40,7 @@ function ContentReview({ companyId }: ContentReviewProps) {
 
   const fetchContentData = async () => {
     try {
-      const response = await fetch(`/api/content/latest?companyId=${companyId}`);
+      const response = await fetch(`https://topbox-mvp.onrender.com/api/content/latest?companyId=${companyId}`);
       if (response.ok) {
         const data = await response.json();
         setContentData(data);
@@ -57,7 +57,7 @@ function ContentReview({ companyId }: ContentReviewProps) {
 
     try {
       setSaving(true);
-      const response = await fetch('/api/content/save', {
+      const response = await fetch('https://topbox-mvp.onrender.com/api/content/save', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

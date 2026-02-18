@@ -21,7 +21,7 @@ function CompanySelection({ selectedCompany, onSelectCompany }: CompanySelection
   const fetchCompanies = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/companies');
+      const response = await fetch('https://topbox-mvp.onrender.com/api/companies');
       if (response.ok) {
         const data = await response.json();
         setCompanies(data);
@@ -41,7 +41,7 @@ function CompanySelection({ selectedCompany, onSelectCompany }: CompanySelection
 
     try {
       setCreating(true);
-      const response = await fetch('/api/companies', {
+      const response = await fetch('https://topbox-mvp.onrender.com/api/companies', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -114,9 +114,8 @@ function CompanySelection({ selectedCompany, onSelectCompany }: CompanySelection
           {companies.map((company) => (
             <div
               key={company.id}
-              className={`company-card ${
-                selectedCompany?.id === company.id ? 'selected' : ''
-              }`}
+              className={`company-card ${selectedCompany?.id === company.id ? 'selected' : ''
+                }`}
               onClick={() => handleSelectCompany(company)}
             >
               <h3>{company.name}</h3>

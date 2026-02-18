@@ -30,7 +30,7 @@ function BrandGuidelines({ companyId }: BrandGuidelinesProps) {
       formData.append('file', uploadedFile);
       formData.append('companyId', companyId.toString());
 
-      const response = await fetch('/api/brand-guidelines/upload', {
+      const response = await fetch('https://topbox-mvp.onrender.com/api/brand-guidelines/upload', {
         method: 'POST',
         body: formData,
       });
@@ -55,7 +55,7 @@ function BrandGuidelines({ companyId }: BrandGuidelinesProps) {
 
     try {
       setGenerating(true);
-      const response = await fetch('/api/brand-guidelines/generate', {
+      const response = await fetch('https://topbox-mvp.onrender.com/api/brand-guidelines/generate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -84,7 +84,7 @@ function BrandGuidelines({ companyId }: BrandGuidelinesProps) {
   return (
     <div className="brand-guidelines">
       <h1>Brand Guidelines</h1>
-      
+
       <div className="mode-selector">
         <button
           className={`mode-btn ${uploadMode === 'upload' ? 'active' : ''}`}
@@ -159,7 +159,7 @@ function BrandGuidelines({ companyId }: BrandGuidelinesProps) {
                 className="btn btn-secondary"
                 onClick={() => {
                   // Save generated content
-                  fetch('/api/brand-guidelines/save', {
+                  fetch('https://topbox-mvp.onrender.com/api/brand-guidelines/save', {
                     method: 'POST',
                     headers: {
                       'Content-Type': 'application/json',
