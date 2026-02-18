@@ -16,8 +16,8 @@ function Navigation({ selectedCompany }: NavigationProps) {
   return (
     <nav className="navigation">
       <div className="nav-container">
-        <Link to="/" className="nav-logo">
-          Content Manager
+        <Link to="/" className="nav-logo ncf-logo">
+          TopBox
         </Link>
         {selectedCompany && (
           <div className="nav-company">
@@ -26,22 +26,22 @@ function Navigation({ selectedCompany }: NavigationProps) {
           </div>
         )}
         <div className="nav-links">
-          <Link 
-            to="/" 
+          <Link
+            to="/"
             className={`nav-link ${isActive('/') ? 'active' : ''}`}
           >
             Companies
           </Link>
           {selectedCompany && (
             <>
-              <Link 
-                to="/brand-guidelines" 
+              <Link
+                to="/brand-guidelines"
                 className={`nav-link ${isActive('/brand-guidelines') ? 'active' : ''}`}
               >
                 Brand Guidelines
               </Link>
-              <Link 
-                to="/content" 
+              <Link
+                to="/content"
                 className={`nav-link ${isActive('/content') ? 'active' : ''}`}
               >
                 Content
