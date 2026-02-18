@@ -1,7 +1,9 @@
 .company-selection {
   width: 100%;
+  animation: fadeIn 0.3s ease both;
 }
 
+/* ── Page Header ── */
 .company-selection-header {
   display: flex;
   justify-content: space-between;
@@ -10,97 +12,94 @@
 }
 
 .company-selection-header h1 {
-  font-size: 2rem;
+  font-family: var(--font-display);
+  font-size: 2.25rem;
+  font-weight: 400;
   color: var(--text-primary);
+  margin: 0;
 }
 
-.create-company-form {
-  background-color: var(--surface);
-  padding: 1.5rem;
-  border-radius: 0.5rem;
-  box-shadow: var(--shadow);
-  margin-bottom: 2rem;
-}
-
-.create-company-form .form-group {
-  margin-bottom: 1rem;
-}
-
-.create-company-form label {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 500;
-  color: var(--text-primary);
-}
-
-.create-company-form input {
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid var(--border);
-  border-radius: 0.375rem;
-  font-size: 1rem;
-  transition: border-color 0.2s;
-}
-
-.create-company-form input:focus {
-  outline: none;
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-}
-
-.create-company-form input:disabled {
-  background-color: var(--background);
-  cursor: not-allowed;
-}
-
+/* ── Company Grid ── */
 .company-list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 1rem;
 }
 
+/* ── Company Card ── */
 .company-card {
-  background-color: var(--surface);
+  background: var(--surface);
   padding: 1.5rem;
-  border-radius: 0.5rem;
+  border-radius: var(--radius-md);
   box-shadow: var(--shadow);
   cursor: pointer;
-  transition: all 0.2s;
-  border: 2px solid transparent;
+  border: 1.5px solid var(--cream-300);
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.company-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--bg-brown), var(--gold));
+  opacity: 0;
+  transition: opacity 0.2s ease;
 }
 
 .company-card:hover {
   box-shadow: var(--shadow-lg);
   transform: translateY(-2px);
+  border-color: var(--cream-400);
+}
+
+.company-card:hover::before {
+  opacity: 1;
 }
 
 .company-card.selected {
-  border-color: var(--primary-color);
-  background-color: rgba(37, 99, 235, 0.05);
+  border-color: var(--gold);
+  background: linear-gradient(135deg, #FDFAF5, var(--cream-100));
+  box-shadow: 0 0 0 3px var(--gold-dim), var(--shadow);
+}
+
+.company-card.selected::before {
+  opacity: 1;
 }
 
 .company-card h3 {
-  font-size: 1.25rem;
-  margin-bottom: 0.5rem;
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 400;
+  margin: 0 0 6px;
   color: var(--text-primary);
 }
 
 .company-date {
-  font-size: 0.875rem;
-  color: var(--text-secondary);
+  font-size: 12px;
+  color: var(--text-muted);
+  margin: 0;
+  letter-spacing: 0.02em;
 }
 
+/* ── Empty / Loading ── */
 .loading,
 .empty-state {
   text-align: center;
-  padding: 3rem;
-  color: var(--text-secondary);
+  padding: 5rem 2rem;
+  color: var(--text-muted);
 }
 
 .empty-state p {
-  font-size: 1.125rem;
+  font-size: 15px;
+  margin: 0 0 1.5rem;
 }
 
+/* ── Responsive ── */
 @media (max-width: 768px) {
   .company-selection-header {
     flex-direction: column;
