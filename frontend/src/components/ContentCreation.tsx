@@ -36,8 +36,8 @@ function ContentCreation({ companyId }: ContentCreationProps) {
       formData.append('topic', topic.trim());
       formData.append('platform', platform);
 
-      referenceImages.forEach((image, index) => {
-        formData.append(`referenceImages`, image);
+      referenceImages.forEach((image) => {
+        formData.append('referenceImages', image);
       });
 
       const response = await fetch('https://topbox-mvp.onrender.com/api/content/create', {
