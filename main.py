@@ -7,6 +7,8 @@ import os
 import json
 from pathlib import Path
 
+from brandAgent import analyze_brand, generate_brand_guidelines
+from contentAgent import analyze_image, generate_post_caption, generate_post_image_prompt, generate_image
 
 # Config
 load_dotenv()
@@ -86,23 +88,42 @@ def create_company() -> Response:
 
     try:
         payload = request.get_json(silent=True) or {}
-        name = (payload.get("name") or "").strip()
+        name = (payload.get("businessName") or "").strip()
+        industry = (payload.get("industry") or "").strip()
+        email = (payload.get("email") or "").strip()
+        monthly_budget_str = (payload.get("budget") or "").strip()
+        description = (payload.get("brandDescription") or "").strip()
+        target_audience = (payload.get("targetAudience") or "").strip()
+        unique_value = (payload.get("uniqueValue") or "").strip()
+        main_competitors = (payload.get("competitors") or "").strip()
+        brand_personality = payload.get("brandPersonality") or []
+        brand_tone = (payload.get("tone") or "").strip()
+        platforms = payload.get("platforms") or []
+        
         if not name:
             return jsonify({
                 "success": False,
                 "message": "Missing company name"
             })
 
+        # Convert budget to integer if provided
+        monthly_budget = 0
+        if monthly_budget_str:
+            try:
+                monthly_budget = int(monthly_budget_str)
+            except ValueError:
+                pass
+
         conn = db_connection()
         cursor = conn.cursor()
 
         cursor.execute(
             """
-            INSERT INTO companies (name)
-            VALUES (%s)
+            INSERT INTO companies (name, industry, email, monthly_budget, description, target_audience, unique_value, main_competitors, brand_personality, brand_tone)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s::jsonb, %s)
             RETURNING id, name, created_at;
             """,
-            (name,),
+            (name, industry, email if email else None, monthly_budget, description, target_audience, unique_value, json.dumps([main_competitors] if main_competitors else []), json.dumps(brand_personality), brand_tone),
         )
         row = cursor.fetchone()
         conn.commit()
@@ -209,33 +230,49 @@ def upload_brand_guidelines() -> Response:
 
 
 @app.route("/api/brand-guidelines/generate", methods=["POST"])
-def generate_brand_guidelines() -> Response:
+def generate_guidelines() -> Response:
     conn = None
     cursor = None
 
     try:
         payload = request.get_json(silent=True) or {}
         company_id = payload.get("companyId")
-        prompt = (payload.get("prompt") or "").strip()
 
         if not isinstance(company_id, int) or company_id <= 0:
             return jsonify({
                 "success": False,
                 "message": "Invalid companyId"
             })
-        if not prompt:
+
+        # Accept a rich questionnaire from the frontend, with fallbacks
+        questionnaire_data = {
+            "business_name": (payload.get("businessName") or f"Company {company_id}").strip(),
+            "industry": (payload.get("industry") or "General").strip(),
+            "target_audience": (payload.get("targetAudience") or "Modern consumers").strip(),
+            "brand_description": (payload.get("brandDescription") or payload.get("prompt") or "").strip(),
+            "tone": (payload.get("tone") or "").strip(),
+            "competitors": (payload.get("competitors") or "").strip(),
+            "unique_value": (payload.get("uniqueValue") or "").strip(),
+        }
+
+        if not questionnaire_data["brand_description"]:
             return jsonify({
                 "success": False,
-                "message": "Missing prompt"
+                "message": "Missing brand description"
             })
 
-        # MVP: simple deterministic guidelines text
-        guidelines = (
-            "# Brand Guidelines\n\n"
-            f"## Company ID\n{company_id}\n\n"
-            "## Source Prompt\n"
-            f"{prompt}\n"
-        )
+        brand_profile = analyze_brand(questionnaire_data)
+        print(f"[DEBUG] Brand profile result: {brand_profile}")
+
+        # Check if analyze_brand returned an error
+        if "success" in brand_profile and not brand_profile.get("success"):
+            return jsonify({
+                "success": False,
+                "message": "Failed to analyze brand",
+                "error": brand_profile.get("error", "Unknown error")
+            })
+
+        guidelines = generate_brand_guidelines(brand_profile)
 
         conn = db_connection()
         cursor = conn.cursor()
@@ -335,6 +372,9 @@ def create_content() -> Response:
     cursor = None
 
     try:
+        conn = db_connection()
+        cursor = conn.cursor()
+
         company_id_raw = (request.form.get("companyId") or "").strip()
         topic = (request.form.get("topic") or "").strip()
         platform = (request.form.get("platform") or "").strip()
@@ -355,6 +395,46 @@ def create_content() -> Response:
                 "success": False,
                 "message": "Missing platform"
             })
+        # -------------------------------------------------
+        # Fetch brand guidelines (if any) for this company
+        # -------------------------------------------------
+        cursor.execute("SELECT content FROM brand_guidelines WHERE company_id = %s;", (company_id,))
+        row = cursor.fetchone()
+        brand_guidelines = (row[0] or "").strip() if row else ""
+        
+        # If no brand guidelines exist, use a simple default
+        if not brand_guidelines:
+            brand_guidelines = "Modern, professional brand with clean aesthetics"
+
+        # -------------------------------------------------
+        # Use visual analysis + caption + image prompt agents
+        # -------------------------------------------------
+        # For now we use a fixed public inspiration image for style analysis.
+        # (User-uploaded images are saved locally and not directly accessible to OpenAI.)
+        img_path = "https://res.cloudinary.com/diwkfbsgv/image/upload/v1771261031/prompt_eng-05_ygdmvu.jpg"
+            
+        # Analyze the reference image style
+        image_analysis = analyze_image(img_path)
+
+        # Generate caption
+        caption_data = generate_post_caption(
+            brand_guidelines=brand_guidelines,
+            post_topic=topic,
+            platform=platform
+        )
+
+        # Generate image prompt using style analysis + caption
+        prompt = generate_post_image_prompt(
+            brand_guidelines=brand_guidelines,
+            caption_data=caption_data,
+            image_analysis=image_analysis
+        )
+
+        # Generate the actual image (not yet persisted in DB, but returned to client)
+        image_url = generate_image(prompt, size="1024x1024")
+        
+        # Format caption with hashtags
+        caption = f"{caption_data['caption']}\n\n{' '.join(['#' + tag for tag in caption_data['hashtags']])}"
 
         uploaded_urls = []
         images = request.files.getlist("referenceImages") or []
@@ -368,22 +448,6 @@ def create_content() -> Response:
                 path = company_dir / filename
                 f.save(path)
                 uploaded_urls.append(f"/uploads/{path.relative_to(UPLOADS_DIR).as_posix()}")
-
-        conn = db_connection()
-        cursor = conn.cursor()
-
-        cursor.execute("SELECT content FROM brand_guidelines WHERE company_id = %s;", (company_id,))
-        row = cursor.fetchone()
-        brand_guidelines = (row[0] or "").strip() if row else ""
-
-        prompt = (
-            "Create a high-quality social image.\n\n"
-            f"Platform: {platform}\n"
-            f"Topic: {topic}\n\n"
-            + (f"Brand Guidelines:\n{brand_guidelines}\n\n" if brand_guidelines else "")
-            + "Style: clean, modern, professional. No watermarks."
-        )
-        caption = f"{topic}\n\n#branding #{platform}"
 
         cursor.execute(
             """
@@ -401,6 +465,7 @@ def create_content() -> Response:
         return jsonify(
             {
                 "id": saved[0],
+                "imageUrl": image_url,
                 "companyId": saved[1],
                 "topic": saved[2],
                 "platform": saved[3],
@@ -598,4 +663,3 @@ def serve_uploads(filename: str):
 if __name__ == "__main__":
     port = int(os.getenv("PORT", "5000"))
     app.run(host="0.0.0.0", port=port, debug=False)
-

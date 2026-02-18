@@ -51,7 +51,9 @@ function BrandGuidelines({ companyId }: BrandGuidelinesProps) {
 
   const handleGenerate = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!prompt.trim()) return;
+
+    // Use a default prompt when no user input is provided
+    const defaultPrompt = `Please generate comprehensive brand guidelines for company ${companyId}.`;
 
     try {
       setGenerating(true);
@@ -62,16 +64,25 @@ function BrandGuidelines({ companyId }: BrandGuidelinesProps) {
         },
         body: JSON.stringify({
           companyId,
-          prompt: prompt.trim(),
+          prompt: defaultPrompt,
         }),
       });
 
       if (response.ok) {
         const data = await response.json();
-        setGeneratedContent(data.content || data.guidelines || '');
-        alert('Brand guidelines generated successfully!');
+        console.log('Generated guidelines response:', data);
+        const content = data.content || data.guidelines || '';
+        if (content) {
+          setGeneratedContent(content);
+          alert('Brand guidelines generated successfully!');
+        } else {
+          console.error('No content in response:', data);
+          alert('Guidelines generated but no content received');
+        }
       } else {
-        alert('Failed to generate brand guidelines');
+        const errorData = await response.json();
+        console.error('API error:', errorData);
+        alert(`Failed to generate guidelines: ${errorData.message || 'Unknown error'}`);
       }
     } catch (error) {
       console.error('Error generating guidelines:', error);
@@ -129,21 +140,14 @@ function BrandGuidelines({ companyId }: BrandGuidelinesProps) {
         <div className="generate-section">
           <form onSubmit={handleGenerate} className="generate-form">
             <div className="form-group">
-              <label htmlFor="prompt">Describe your brand guidelines</label>
-              <textarea
-                id="prompt"
-                value={prompt}
-                onChange={(e) => setPrompt(e.target.value)}
-                placeholder="e.g., Our brand uses a modern minimalist style with blue (#2563eb) and white colors. We prefer clean typography and professional imagery..."
-                rows={6}
-                disabled={generating}
-                required
-              />
+              <p>
+                Click the button to auto-generate brand guidelines for this company.
+              </p>
             </div>
             <button
               type="submit"
               className="btn btn-primary"
-              disabled={!prompt.trim() || generating}
+              disabled={generating}
             >
               {generating ? 'Generating...' : 'Generate Guidelines'}
             </button>
@@ -152,8 +156,8 @@ function BrandGuidelines({ companyId }: BrandGuidelinesProps) {
           {generatedContent && (
             <div className="generated-content">
               <h3>Generated Brand Guidelines</h3>
-              <div className="content-preview">
-                <pre>{generatedContent}</pre>
+              <div className="content-preview" style={{ whiteSpace: 'pre-wrap', backgroundColor: '#f5f5f5', padding: '16px', borderRadius: '4px', maxHeight: '500px', overflowY: 'auto', fontFamily: 'monospace', fontSize: '14px', lineHeight: '1.6' }}>
+                {generatedContent}
               </div>
               <button
                 className="btn btn-secondary"

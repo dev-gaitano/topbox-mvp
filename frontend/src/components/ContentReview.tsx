@@ -133,7 +133,7 @@ function ContentReview({ companyId }: ContentReviewProps) {
                 placeholder="Enter content prompt..."
               />
             ) : (
-              <div className="content-display">
+              <div className="content-display" style={{ whiteSpace: 'pre-wrap', backgroundColor: '#f9f9f9', padding: '12px', borderRadius: '4px', minHeight: '100px', lineHeight: '1.6' }}>
                 {prompt || <span className="placeholder">No prompt generated</span>}
               </div>
             )}
@@ -158,7 +158,7 @@ function ContentReview({ companyId }: ContentReviewProps) {
                 placeholder="Enter caption..."
               />
             ) : (
-              <div className="content-display">
+              <div className="content-display" style={{ whiteSpace: 'pre-wrap', backgroundColor: '#f9f9f9', padding: '12px', borderRadius: '4px', minHeight: '80px', lineHeight: '1.6' }}>
                 {caption || <span className="placeholder">No caption generated</span>}
               </div>
             )}

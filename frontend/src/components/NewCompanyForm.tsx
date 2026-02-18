@@ -73,7 +73,19 @@ export default function NewCompanyForm({ onSuccess }) {
       const companyRes = await fetch(`${API_BASE}/api/companies`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: form.businessName }),
+        body: JSON.stringify({
+          businessName: form.businessName,
+          industry: form.industry,
+          email: form.email,
+          budget: form.budget,
+          brandDescription: form.brandDescription,
+          targetAudience: form.targetAudience,
+          competitors: form.competitors,
+          uniqueValue: form.uniqueValue,
+          brandPersonality: form.brandPersonality,
+          tone: form.tone,
+          platforms: form.platforms
+        }),
       });
       const company = await companyRes.json();
       if (!company.id) throw new Error(company.message || "Failed to create company");

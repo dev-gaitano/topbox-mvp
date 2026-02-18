@@ -26,6 +26,7 @@ def analyze_brand(questionnaire_data: dict) -> dict:
         {{
             "brand_voice": ["adj1", "adj2", "adj3"],
             "color_palette": ["#HEX1", "#HEX2", "#HEX3", "#HEX4", "#HEX5"],
+            "typography": "typography",
             "content_themes": ["theme1", "theme2", "theme3", "theme4", "theme5"],
             "target_audience": "description",
             "posting_style": "style description",
@@ -53,50 +54,40 @@ def analyze_brand(questionnaire_data: dict) -> dict:
 
 def generate_brand_guidelines(brand_profile: dict) -> str:
     try:
-        guidelines: str = f"""
-        # BRAND GUIDELINES
+        # Check if brand_profile is an error response
+        if "success" in brand_profile and not brand_profile.get("success"):
+            error_msg = brand_profile.get("error", "Unknown error")
+            return f"Error generating brand guidelines: {error_msg}"
+        
+        # Check if required keys exist
+        required_keys = ['brand_voice', 'color_palette', 'industry', 'target_audience', 'content_themes', 'posting_style']
+        missing_keys = [key for key in required_keys if key not in brand_profile]
+        
+        if missing_keys:
+            return f"Error: Missing required brand profile data: {', '.join(missing_keys)}"
+        
+        guidelines: str = f"""# BRAND GUIDELINES
 
-        ## Brand Voice
-        {', '.join(brand_profile['brand_voice'])}
+## Brand Voice
+{', '.join(brand_profile['brand_voice'])}
 
-        ## Color Palette
-        {', '.join(brand_profile['color_palette'])}
+## Color Palette
+{', '.join(brand_profile['color_palette'])}
 
-        ## Industry
-        {brand_profile['industry']}
+## Industry
+{brand_profile['industry']}
 
-        ## Target Audience
-        {brand_profile['target_audience']}
+## Target Audience
+{brand_profile['target_audience']}
 
-        ## Content Themes
-        {', '.join(brand_profile['content_themes'])}
+## Content Themes
+{', '.join(brand_profile['content_themes'])}
 
-        ## Posting Style
-        {brand_profile['posting_style']}
-        """
+## Posting Style
+{brand_profile['posting_style']}"""
 
         return guidelines
     except Exception as e:
-        return f"""
-            \"success\" : {False},
-            \"message\" : \"Error analyzing brand\",
-            \"error\" : {str(e)}
-        """
-
-
-def main():
-    questionnaire_data: dict[str, str | list | int] = {
-        "business_name": "Nairobi Coffee Co.",
-        "industry": "Food & Beverage",
-        "description": "Specialty coffee roaster",
-        "target_audience": "Young professionals",
-        "brand_personality": ["Friendly", "Authentic"],
-        "budget": "100k-200k"
-    }
-
-    brand_profile = analyze_brand(questionnaire_data)
-    brand_guidelines = generate_brand_guidelines(brand_profile)
-    print(brand_guidelines)
-
-if __name__ == "__main__":
-    main()
+        print(f"Error in generate_brand_guidelines: {str(e)}")
+        print(f"Brand profile: {brand_profile}")
+        return f"Error generating guidelines: {str(e)}"

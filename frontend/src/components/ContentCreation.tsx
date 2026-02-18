@@ -47,6 +47,13 @@ function ContentCreation({ companyId }: ContentCreationProps) {
 
       if (response.ok) {
         const data = await response.json();
+        console.log('Generated content response:', data);
+        
+        if (!data.prompt || !data.caption) {
+          console.warn('Missing prompt or caption in response:', data);
+          alert('Warning: Some generated content may be missing. Please review before saving.');
+        }
+        
         // Store content data for review page
         sessionStorage.setItem('pendingContent', JSON.stringify({
           ...data,
@@ -56,7 +63,9 @@ function ContentCreation({ companyId }: ContentCreationProps) {
         }));
         navigate('/content/review');
       } else {
-        alert('Failed to create content');
+        const errorData = await response.json();
+        console.error('API error:', errorData);
+        alert(`Failed to create content: ${errorData.message || 'Unknown error'}`);
       }
     } catch (error) {
       console.error('Error creating content:', error);
