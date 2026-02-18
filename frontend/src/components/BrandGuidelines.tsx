@@ -30,7 +30,7 @@ function BrandGuidelines({ companyId }: BrandGuidelinesProps) {
       formData.append('file', uploadedFile);
       formData.append('companyId', companyId.toString());
 
-      const response = await fetch('https://topbox-mvp.onrender.com/api/brand-guidelines/upload', {
+      const response = await fetch('/api/brand-guidelines/upload', {
         method: 'POST',
         body: formData,
       });
@@ -74,8 +74,8 @@ function BrandGuidelines({ companyId }: BrandGuidelinesProps) {
         const content = data.content || data.guidelines || '';
         if (content) {
           setGeneratedContent(content);
-          alert('Brand guidelines generated successfully!');
-        } else {
+        alert('Brand guidelines generated successfully!');
+      } else {
           console.error('No content in response:', data);
           alert('Guidelines generated but no content received');
         }
