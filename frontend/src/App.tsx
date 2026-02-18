@@ -5,6 +5,7 @@ import BrandGuidelines from './components/BrandGuidelines';
 import ContentCreation from './components/ContentCreation';
 import ContentReview from './components/ContentReview';
 import Navigation from './components/Navigation';
+import NewCompanyForm from './components/NewCompanyForm';
 import { Company } from './types';
 import './App.css';
 
@@ -17,44 +18,50 @@ function App() {
         <Navigation selectedCompany={selectedCompany} />
         <main className="main-content">
           <Routes>
-            <Route 
-              path="/" 
+            <Route
+              path="/"
               element={
-                <CompanySelection 
+                <CompanySelection
                   selectedCompany={selectedCompany}
                   onSelectCompany={setSelectedCompany}
                 />
-              } 
+              }
             />
-            <Route 
-              path="/brand-guidelines" 
+            <Route
+              path="/companies/new"
+              element={
+                <NewCompanyForm onSuccess={setSelectedCompany} />
+              }
+            />
+            <Route
+              path="/brand-guidelines"
               element={
                 selectedCompany ? (
                   <BrandGuidelines companyId={selectedCompany.id} />
                 ) : (
                   <Navigate to="/" replace />
                 )
-              } 
+              }
             />
-            <Route 
-              path="/content" 
+            <Route
+              path="/content"
               element={
                 selectedCompany ? (
                   <ContentCreation companyId={selectedCompany.id} />
                 ) : (
                   <Navigate to="/" replace />
                 )
-              } 
+              }
             />
-            <Route 
-              path="/content/review" 
+            <Route
+              path="/content/review"
               element={
                 selectedCompany ? (
                   <ContentReview companyId={selectedCompany.id} />
                 ) : (
                   <Navigate to="/" replace />
                 )
-              } 
+              }
             />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
