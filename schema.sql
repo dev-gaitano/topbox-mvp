@@ -6,15 +6,15 @@ DROP TABLE IF EXISTS form_responses CASCADE;
 CREATE TABLE IF NOT EXISTS companies (
 	id SERIAL PRIMARY KEY,
 	name TEXT NOT NULL,
-	industry TEXT NOT NULL,
+	industry TEXT DEFAULT '',
 	email VARCHAR(255) UNIQUE,
-	monthly_budget INT NOT NULL,
-	description TEXT NOT NULL,
-	target_audience TEXT NOT NULL,
-	unique_value TEXT,
+	monthly_budget INT DEFAULT 0,
+	description TEXT DEFAULT '',
+	target_audience TEXT DEFAULT '',
+	unique_value TEXT DEFAULT '',
 	main_competitors JSONB DEFAULT '[]',
-	brand_personality JSONB NOT NULL DEFAULT '[]',
-	brand_tone TEXT,
+	brand_personality JSONB DEFAULT '[]',
+	brand_tone TEXT DEFAULT '',
 	created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
