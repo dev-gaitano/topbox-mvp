@@ -40,7 +40,7 @@ function ContentCreation({ companyId }: ContentCreationProps) {
         formData.append('referenceImages', image);
       });
 
-      const response = await fetch('https://topbox-mvp.onrender.com/api/content/create', {
+      const response = await fetch('/api/content/create', {
         method: 'POST',
         body: formData,
       });

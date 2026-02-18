@@ -55,7 +55,7 @@ function BrandGuidelines({ companyId }: BrandGuidelinesProps) {
 
     try {
       setGenerating(true);
-      const response = await fetch('https://topbox-mvp.onrender.com/api/brand-guidelines/generate', {
+      const response = await fetch('/api/brand-guidelines/generate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -159,7 +159,7 @@ function BrandGuidelines({ companyId }: BrandGuidelinesProps) {
                 className="btn btn-secondary"
                 onClick={() => {
                   // Save generated content
-                  fetch('https://topbox-mvp.onrender.com/api/brand-guidelines/save', {
+                  fetch('/api/brand-guidelines/save', {
                     method: 'POST',
                     headers: {
                       'Content-Type': 'application/json',
