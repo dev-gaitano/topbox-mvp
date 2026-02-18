@@ -56,6 +56,10 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+h1 {
+  color: #F9F5EF;
+}
+
 /* ── Layout ── */
 .app {
   min-height: 100vh;
