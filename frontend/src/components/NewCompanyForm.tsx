@@ -114,25 +114,6 @@ export default function NewCompanyForm({ onSuccess }: NewCompanyFormProps) {
       const company: Company & { success?: boolean; message?: string } = await companyRes.json();
       if (!company.id) throw new Error(company.message || "Failed to create company");
 
-      // 2. Generate brand guidelines
-      const guidelinesRes = await fetch(`${API_BASE}/api/brand-guidelines/generate`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          companyId: company.id,
-          businessName: form.businessName,
-          industry: form.industry,
-          targetAudience: form.targetAudience,
-          brandDescription: form.brandDescription,
-          tone: [...form.brandPersonality, form.tone].filter(Boolean).join(", "),
-          competitors: form.competitors,
-          uniqueValue: form.uniqueValue,
-        }),
-      });
-      const guidelines = await guidelinesRes.json();
-      if (!guidelines.success && !guidelines.guidelines)
-        setNotification({ message: guidelines.message || "Brand guidelines couldn't be generated — you can set them up later.", type: "warning" });
-
       // 3. Bubble the new company up to App, then go to home
       setNotification({ message: `${form.businessName} has been created successfully!`, type: "success" });
       setTimeout(() => {

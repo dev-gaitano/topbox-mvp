@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Platform } from '../types';
 import './ContentCreation.css';
@@ -7,22 +7,42 @@ interface ContentCreationProps {
   companyId: number;
 }
 
+const PLATFORM_ICONS: Record<string, string> = {
+  instagram: '📸',
+  twitter: '🐦',
+  facebook: '📘',
+  linkedin: '💼',
+  tiktok: '🎵',
+};
+
 function ContentCreation({ companyId }: ContentCreationProps) {
   const navigate = useNavigate();
   const [topic, setTopic] = useState('');
   const [platform, setPlatform] = useState<Platform>('instagram');
   const [referenceImages, setReferenceImages] = useState<File[]>([]);
   const [submitting, setSubmitting] = useState(false);
+  const [dragging, setDragging] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const platforms: Platform[] = ['instagram', 'twitter', 'facebook', 'linkedin', 'tiktok'];
 
+  const addFiles = (files: File[]) => {
+    const images = files.filter(f => f.type.startsWith('image/'));
+    setReferenceImages(prev => [...prev, ...images]);
+  };
+
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    setReferenceImages([...referenceImages, ...files]);
+    addFiles(Array.from(e.target.files || []));
   };
 
   const handleRemoveImage = (index: number) => {
-    setReferenceImages(referenceImages.filter((_, i) => i !== index));
+    setReferenceImages(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragging(false);
+    addFiles(Array.from(e.dataTransfer.files));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -35,10 +55,7 @@ function ContentCreation({ companyId }: ContentCreationProps) {
       formData.append('companyId', companyId.toString());
       formData.append('topic', topic.trim());
       formData.append('platform', platform);
-
-      referenceImages.forEach((image) => {
-        formData.append('referenceImages', image);
-      });
+      referenceImages.forEach(image => formData.append('referenceImages', image));
 
       const response = await fetch('/api/content/create', {
         method: 'POST',
@@ -47,14 +64,9 @@ function ContentCreation({ companyId }: ContentCreationProps) {
 
       if (response.ok) {
         const data = await response.json();
-        console.log('Generated content response:', data);
-        
         if (!data.prompt || !data.caption) {
-          console.warn('Missing prompt or caption in response:', data);
           alert('Warning: Some generated content may be missing. Please review before saving.');
         }
-        
-        // Store content data for review page
         sessionStorage.setItem('pendingContent', JSON.stringify({
           ...data,
           topic,
@@ -64,97 +76,113 @@ function ContentCreation({ companyId }: ContentCreationProps) {
         navigate('/content/review');
       } else {
         const errorData = await response.json();
-        console.error('API error:', errorData);
         alert(`Failed to create content: ${errorData.message || 'Unknown error'}`);
       }
     } catch (error) {
-      console.error('Error creating content:', error);
       alert('Error creating content');
     } finally {
       setSubmitting(false);
     }
   };
 
+  const previewImage = referenceImages[0];
+
   return (
-    <div className="content-creation">
-      <h1>Create Content</h1>
+    <div className="cc-wrapper">
+      <h2 className="cc-title">Create Content</h2>
 
-      <form onSubmit={handleSubmit} className="content-form">
-        <div className="form-group">
-          <label htmlFor="topic">Post Topic</label>
-          <input
-            id="topic"
-            type="text"
-            value={topic}
-            onChange={(e) => setTopic(e.target.value)}
-            placeholder="e.g., Product launch announcement"
-            required
-            disabled={submitting}
-          />
-        </div>
+      <form onSubmit={handleSubmit} className="cc-form">
+        {/* Left column */}
+        <div className="cc-left">
+          <div className="cc-field form-group">
+            <label htmlFor="topic">Post Topic</label>
+            <input
+              className="cc-input"
+              type="text"
+              value={topic}
+              onChange={e => setTopic(e.target.value)}
+              placeholder="e.g., Product launch announcement"
+              required
+              disabled={submitting}
+            />
+          </div>
 
-        <div className="form-group">
-          <label htmlFor="platform">Select Platform</label>
-          <select
-            id="platform"
-            value={platform}
-            onChange={(e) => setPlatform(e.target.value as Platform)}
-            disabled={submitting}
+          <div className="cc-field form-group">
+            <label htmlFor="platform">Select Platform</label>
+            <select
+              className="cc-input cc-select"
+              value={platform}
+              onChange={e => setPlatform(e.target.value as Platform)}
+              disabled={submitting}
+            >
+              {platforms.map(p => (
+                <option key={p} value={p}>
+                  {PLATFORM_ICONS[p]} {p.charAt(0).toUpperCase() + p.slice(1)}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <button
+            type="submit"
+            id="cc-btn"
+            className="btn btn-primary"
+            disabled={!topic.trim() || submitting}
           >
-            {platforms.map((p) => (
-              <option key={p} value={p}>
-                {p.charAt(0).toUpperCase() + p.slice(1)}
-              </option>
-            ))}
-          </select>
+            {submitting ? (
+              <span className="cc-btn-inner">
+                <span className="cc-spinner" />
+                Generating…
+              </span>
+            ) : 'Generate Prompt'}
+          </button>
         </div>
 
-        <div className="form-group">
-          <label htmlFor="referenceImages">Upload Reference/Inspiration Images</label>
+        {/* Right column — image upload */}
+        <div
+          className={`cc-upload-panel ${dragging ? 'dragging' : ''}`}
+          onClick={() => fileInputRef.current?.click()}
+          onDragOver={e => { e.preventDefault(); setDragging(true); }}
+          onDragLeave={() => setDragging(false)}
+          onDrop={handleDrop}
+        >
           <input
-            id="referenceImages"
+            ref={fileInputRef}
             type="file"
             accept="image/*"
             multiple
             onChange={handleImageChange}
             disabled={submitting}
+            style={{ display: 'none' }}
           />
-          <p className="form-hint">
-            You can select multiple images to upload
-          </p>
-        </div>
 
-        {referenceImages.length > 0 && (
-          <div className="image-preview-section">
-            <h3>Uploaded Images ({referenceImages.length})</h3>
-            <div className="image-grid">
+          {referenceImages.length === 0 ? (
+            <div className="cc-upload-empty">
+              <span className="cc-upload-icon">↑</span>
+              <span className="cc-upload-label">Upload reference</span>
+              <span className="cc-upload-hint">drag & drop or click</span>
+            </div>
+          ) : (
+            <div className="cc-image-grid">
               {referenceImages.map((image, index) => (
-                <div key={index} className="image-preview">
-                  <img
-                    src={URL.createObjectURL(image)}
-                    alt={`Reference ${index + 1}`}
-                  />
+                <div key={index} className="cc-image-thumb">
+                  <img src={URL.createObjectURL(image)} alt={`Reference ${index + 1}`} />
                   <button
                     type="button"
-                    className="remove-image-btn"
-                    onClick={() => handleRemoveImage(index)}
+                    className="cc-remove-btn"
+                    onClick={e => { e.stopPropagation(); handleRemoveImage(index); }}
                     disabled={submitting}
                   >
                     ×
                   </button>
                 </div>
               ))}
+              <div className="cc-add-more">
+                <span>+</span>
+              </div>
             </div>
-          </div>
-        )}
-
-        <button
-          type="submit"
-          className="btn btn-primary btn-large"
-          disabled={!topic.trim() || submitting}
-        >
-          {submitting ? 'Creating...' : 'Generate Content'}
-        </button>
+          )}
+        </div>
       </form>
     </div>
   );

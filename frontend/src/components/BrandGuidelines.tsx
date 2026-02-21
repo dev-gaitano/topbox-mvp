@@ -6,7 +6,7 @@ interface BrandGuidelinesProps {
 }
 
 function BrandGuidelines({ companyId }: BrandGuidelinesProps) {
-  const [uploadMode, setUploadMode] = useState<'upload' | 'generate'>('upload');
+  const [uploadMode, setUploadMode] = useState<'upload' | 'generate' | 'view'>('upload');
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [generating, setGenerating] = useState(false);
@@ -107,6 +107,12 @@ function BrandGuidelines({ companyId }: BrandGuidelinesProps) {
         >
           Generate Guidelines
         </button>
+        <button
+          className={`mode-btn ${uploadMode === 'view' ? 'active' : ''}`}
+          onClick={() => setUploadMode('view')}
+        >
+          View Guidelines
+        </button>
       </div>
 
       {uploadMode === 'upload' ? (
@@ -114,24 +120,26 @@ function BrandGuidelines({ companyId }: BrandGuidelinesProps) {
           <form onSubmit={handleUpload} className="upload-form">
             <div className="form-group">
               <label htmlFor="fileUpload">Upload Brand Guidelines File</label>
-              <input
-                id="fileUpload"
-                type="file"
-                accept=".pdf,.doc,.docx,.txt"
-                onChange={handleFileChange}
-                disabled={uploading}
-              />
+              <div className="upload-row">
+                <input
+                  id="fileUpload"
+                  type="file"
+                  accept=".pdf,.doc,.docx,.txt"
+                  onChange={handleFileChange}
+                  disabled={uploading}
+                />
+                <button
+                  type="submit"
+                  className="bg-save-btn btn btn-primary"
+                  disabled={!uploadedFile || uploading}
+                >
+                  {uploading ? 'Uploading...' : 'Upload Guidelines'}
+                </button>
+              </div>
               {uploadedFile && (
                 <p className="file-info">Selected: {uploadedFile.name}</p>
               )}
             </div>
-            <button
-              type="submit"
-              className="btn btn-primary"
-              disabled={!uploadedFile || uploading}
-            >
-              {uploading ? 'Uploading...' : 'Upload Guidelines'}
-            </button>
           </form>
         </div>
       ) : (

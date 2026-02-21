@@ -1,3 +1,4 @@
+// App.tsx
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useState } from 'react';
 import CompanySelection from './components/CompanySelection';
@@ -21,37 +22,27 @@ function App() {
             <Route
               path="/"
               element={
-                <CompanySelection
-                  selectedCompany={selectedCompany}
-                  onSelectCompany={setSelectedCompany}
-                />
+                <>
+                  <CompanySelection
+                    selectedCompany={selectedCompany}
+                    onSelectCompany={setSelectedCompany}
+                  />
+                  <br />
+                  <br />
+                  {selectedCompany && (
+                    <>
+                      <BrandGuidelines companyId={selectedCompany.id} />
+                      <br />
+                      <br />
+                      <ContentCreation companyId={selectedCompany.id} />
+                    </>
+                  )}
+                </>
               }
             />
             <Route
               path="/companies/new"
-              element={
-                <NewCompanyForm onSuccess={setSelectedCompany} />
-              }
-            />
-            <Route
-              path="/brand-guidelines"
-              element={
-                selectedCompany ? (
-                  <BrandGuidelines companyId={selectedCompany.id} />
-                ) : (
-                  <Navigate to="/" replace />
-                )
-              }
-            />
-            <Route
-              path="/content"
-              element={
-                selectedCompany ? (
-                  <ContentCreation companyId={selectedCompany.id} />
-                ) : (
-                  <Navigate to="/" replace />
-                )
-              }
+              element={<NewCompanyForm onSuccess={setSelectedCompany} />}
             />
             <Route
               path="/content/review"

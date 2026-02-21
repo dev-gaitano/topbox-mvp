@@ -35,12 +35,6 @@ function Navigation({ selectedCompany }: NavigationProps) {
           {selectedCompany && (
             <>
               <Link
-                to="/brand-guidelines"
-                className={`nav-link ${isActive('/brand-guidelines') ? 'active' : ''}`}
-              >
-                Brand Guidelines
-              </Link>
-              <Link
                 to="/content"
                 className={`nav-link ${isActive('/content') ? 'active' : ''}`}
               >
