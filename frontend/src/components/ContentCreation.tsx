@@ -85,8 +85,6 @@ function ContentCreation({ companyId }: ContentCreationProps) {
     }
   };
 
-  const previewImage = referenceImages[0];
-
   return (
     <div className="cc-wrapper">
       <h2 className="cc-title">Create Content</h2>
