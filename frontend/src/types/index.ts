@@ -1,7 +1,7 @@
 export interface Company {
   id: number;
   name: string;
-  createdAt?: string;
+  createdAt?: string | null;
 }
 
 export interface BrandGuideline {

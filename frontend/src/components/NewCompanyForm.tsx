@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./NewCompanyForm.css";
+import { Company } from "../types";
 
 const BRAND_PERSONALITIES = [
   "Professional", "Friendly", "Creative", "Bold",
@@ -27,14 +28,32 @@ const STEPS = ["Business", "Audience", "Brand Voice", "Platforms"];
 
 const API_BASE = "http://localhost:5000";
 
-export default function NewCompanyForm({ onSuccess }) {
+interface FormState {
+  businessName: string;
+  industry: string;
+  email: string;
+  brandDescription: string;
+  targetAudience: string;
+  budget: string;
+  brandPersonality: string[];
+  tone: string;
+  competitors: string;
+  uniqueValue: string;
+  platforms: string[];
+}
+
+interface NewCompanyFormProps {
+  onSuccess?: (company: Company) => void;
+}
+
+export default function NewCompanyForm({ onSuccess }: NewCompanyFormProps) {
   const navigate = useNavigate();
 
   const [step, setStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<FormState>({
     businessName: "",
     industry: "",
     email: "",
@@ -48,14 +67,19 @@ export default function NewCompanyForm({ onSuccess }) {
     platforms: [],
   });
 
-  const update = (field, value) => setForm(prev => ({ ...prev, [field]: value }));
-  const toggleMulti = (field, value) =>
-    setForm(prev => ({
-      ...prev,
-      [field]: prev[field].includes(value)
-        ? prev[field].filter(v => v !== value)
-        : [...prev[field], value],
-    }));
+  const update = (field: keyof FormState, value: string) =>
+    setForm(prev => ({ ...prev, [field]: value }));
+
+  const toggleMulti = (field: keyof FormState, value: string) =>
+    setForm(prev => {
+      const current = prev[field] as string[];
+      return {
+        ...prev,
+        [field]: current.includes(value)
+          ? current.filter(v => v !== value)
+          : [...current, value],
+      };
+    });
 
   const canNext = () => {
     if (step === 0) return form.businessName.trim() && form.industry && form.email.trim();
@@ -87,7 +111,7 @@ export default function NewCompanyForm({ onSuccess }) {
           platforms: form.platforms
         }),
       });
-      const company = await companyRes.json();
+      const company: Company & { success?: boolean; message?: string } = await companyRes.json();
       if (!company.id) throw new Error(company.message || "Failed to create company");
 
       // 2. Generate brand guidelines
@@ -114,7 +138,8 @@ export default function NewCompanyForm({ onSuccess }) {
       navigate("/");
 
     } catch (e) {
-      setError(e.message || "Something went wrong. Please try again.");
+      const message = e instanceof Error ? e.message : "Something went wrong. Please try again.";
+      setError(message);
     } finally {
       setLoading(false);
     }
@@ -326,7 +351,14 @@ export default function NewCompanyForm({ onSuccess }) {
   );
 }
 
-function Field({ label, required, hint, children }) {
+interface FieldProps {
+  label: string;
+  required?: boolean;
+  hint?: string;
+  children: React.ReactNode;
+}
+
+function Field({ label, required, hint, children }: FieldProps) {
   return (
     <div className="ncf-field">
       <label className="ncf-label">

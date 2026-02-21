@@ -11,7 +11,6 @@ function BrandGuidelines({ companyId }: BrandGuidelinesProps) {
   const [uploading, setUploading] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [generatedContent, setGeneratedContent] = useState<string>('');
-  const [prompt, setPrompt] = useState('');
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -52,7 +51,6 @@ function BrandGuidelines({ companyId }: BrandGuidelinesProps) {
   const handleGenerate = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Use a default prompt when no user input is provided
     const defaultPrompt = `Please generate comprehensive brand guidelines for company ${companyId}.`;
 
     try {
@@ -74,8 +72,8 @@ function BrandGuidelines({ companyId }: BrandGuidelinesProps) {
         const content = data.content || data.guidelines || '';
         if (content) {
           setGeneratedContent(content);
-        alert('Brand guidelines generated successfully!');
-      } else {
+          alert('Brand guidelines generated successfully!');
+        } else {
           console.error('No content in response:', data);
           alert('Guidelines generated but no content received');
         }
@@ -162,7 +160,6 @@ function BrandGuidelines({ companyId }: BrandGuidelinesProps) {
               <button
                 className="btn btn-secondary"
                 onClick={() => {
-                  // Save generated content
                   fetch('/api/brand-guidelines/save', {
                     method: 'POST',
                     headers: {
