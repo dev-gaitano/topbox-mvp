@@ -49,7 +49,8 @@
 
 /* ── Panels ── */
 .upload-section,
-.generate-section {
+.generate-section,
+.view-section {
   background: var(--surface);
   padding: 2rem;
   border-radius: var(--radius-lg);

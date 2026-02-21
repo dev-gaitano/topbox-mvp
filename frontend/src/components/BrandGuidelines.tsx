@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import './BrandGuidelines.css';
 
+const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+
 interface BrandGuidelinesProps {
   companyId: number;
 }
@@ -11,6 +13,19 @@ function BrandGuidelines({ companyId }: BrandGuidelinesProps) {
   const [uploading, setUploading] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [generatedContent, setGeneratedContent] = useState<string>('');
+  const [viewedContent, setViewedContent] = useState<string | null>(undefined);
+
+  const handleViewMode = async () => {
+    setUploadMode('view');
+    setViewedContent(undefined); // reset to loading state
+    try {
+      const res = await fetch(`${API_BASE}/api/brand-guidelines/${companyId}`);
+      const data = await res.json();
+      setViewedContent(data.content ?? null);
+    } catch {
+      setViewedContent(null);
+    }
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -51,18 +66,30 @@ function BrandGuidelines({ companyId }: BrandGuidelinesProps) {
   const handleGenerate = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const defaultPrompt = `Please generate comprehensive brand guidelines for company ${companyId}.`;
-
     try {
       setGenerating(true);
-      const response = await fetch('/api/brand-guidelines/generate', {
+
+      const companyRes = await fetch(`${API_BASE}/api/companies/${companyId}`);
+      const companyData = await companyRes.json();
+
+      const response = await fetch(`${API_BASE}/api/brand-guidelines/generate`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           companyId,
-          prompt: defaultPrompt,
+          questionnaire: {
+            company_name: companyData.name,
+            industry: companyData.industry,
+            description: companyData.description,
+            target_audience: companyData.target_audience,
+            unique_value: companyData.unique_value,
+            main_competitors: companyData.main_competitors,
+            brand_personality: companyData.brand_personality,
+            brand_tone: companyData.brand_tone,
+            monthly_budget: companyData.monthly_budget,
+          },
         }),
       });
 
@@ -78,9 +105,15 @@ function BrandGuidelines({ companyId }: BrandGuidelinesProps) {
           alert('Guidelines generated but no content received');
         }
       } else {
-        const errorData = await response.json();
-        console.error('API error:', errorData);
-        alert(`Failed to generate guidelines: ${errorData.message || 'Unknown error'}`);
+        const text = await response.text();
+        let message = 'Unknown error';
+        try {
+          const errorData = JSON.parse(text);
+          message = errorData.message || message;
+        } catch {
+          message = text || `HTTP ${response.status}`;
+        }
+        alert(`Failed to generate guidelines: ${message}`);
       }
     } catch (error) {
       console.error('Error generating guidelines:', error);
@@ -109,7 +142,7 @@ function BrandGuidelines({ companyId }: BrandGuidelinesProps) {
         </button>
         <button
           className={`mode-btn ${uploadMode === 'view' ? 'active' : ''}`}
-          onClick={() => setUploadMode('view')}
+          onClick={handleViewMode}
         >
           View Guidelines
         </button>
@@ -142,6 +175,18 @@ function BrandGuidelines({ companyId }: BrandGuidelinesProps) {
             </div>
           </form>
         </div>
+      ) : uploadMode === 'view' ? (
+        <div className="view-section">
+          {viewedContent === undefined ? (
+            <p>Loading...</p>
+          ) : viewedContent === null ? (
+            <p>No brand guidelines have been saved for this company yet.</p>
+          ) : (
+            <div className="content-preview" style={{ whiteSpace: 'pre-wrap', backgroundColor: '#f5f5f5', padding: '16px', borderRadius: '4px', maxHeight: '500px', overflowY: 'auto', fontFamily: 'monospace', fontSize: '14px', lineHeight: '1.6' }}>
+              {viewedContent}
+            </div>
+          )}
+        </div>
       ) : (
         <div className="generate-section">
           <form onSubmit={handleGenerate} className="generate-form">
@@ -168,7 +213,7 @@ function BrandGuidelines({ companyId }: BrandGuidelinesProps) {
               <button
                 className="btn btn-secondary"
                 onClick={() => {
-                  fetch('/api/brand-guidelines/save', {
+                  fetch(`${API_BASE}/api/brand-guidelines/save`, {
                     method: 'POST',
                     headers: {
                       'Content-Type': 'application/json',

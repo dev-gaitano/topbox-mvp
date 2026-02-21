@@ -105,6 +105,7 @@ def create_company() -> tuple[Response, int]:
         conn = db_connection()
         cursor = conn.cursor()
 
+        # Get data from input
         payload = request.get_json(silent=True) or {}
         name = (payload.get("businessName") or "").strip()
         industry = (payload.get("industry") or "").strip()
@@ -131,6 +132,7 @@ def create_company() -> tuple[Response, int]:
             except ValueError:
                 pass
 
+        # Insert company to database
         cursor.execute(
             """
             INSERT INTO companies (name, industry, email, monthly_budget,
@@ -169,6 +171,63 @@ def create_company() -> tuple[Response, int]:
             cursor.close()
         if conn:
             conn.close()
+
+
+@app.route("/api/companies/<int:company_id>", methods=["GET"])
+def get_company(company_id) -> tuple[Response, int]:
+    conn = None
+    cursor = None
+
+    try:
+        conn = db_connection()
+        cursor = conn.cursor()
+
+        cursor.execute(
+            """
+            SELECT id, name, industry, email, monthly_budget,
+                   description, target_audience, unique_value,
+                   main_competitors, brand_personality, brand_tone, created_at
+            FROM companies
+            WHERE id = %s;
+            """,
+            (company_id,),
+        )
+        row = cursor.fetchone()
+
+        if not row:
+            return jsonify({
+                "success": False,
+                "message": "Company not found"
+            }), 404
+
+        return jsonify({
+            "id": row[0],
+            "name": row[1],
+            "industry": row[2],
+            "email": row[3],
+            "monthly_budget": row[4],
+            "description": row[5],
+            "target_audience": row[6],
+            "unique_value": row[7],
+            "main_competitors": row[8],
+            "brand_personality": row[9],
+            "brand_tone": row[10],
+            "createdAt": row[11].isoformat() if row[11] else None,
+        }), 200
+
+    except Exception as e:
+        print(f"Error fetching company: {e}")
+        return jsonify({
+            "success": False,
+            "message": "Failed to fetch company",
+            "error": str(e)
+        }), 500
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
 
 
 # =====================================================
@@ -254,33 +313,14 @@ def generate_guidelines() -> Response:
     cursor = None
 
     try:
-        payload = request.get_json(silent=True) or {}
-        company_id = payload.get("companyId")
-
-        if not isinstance(company_id, int) or company_id <= 0:
-            return jsonify({
-                "success": False,
-                "message": "Invalid companyId"
-            })
-
-        # Accept a rich questionnaire from the frontend, with fallbacks
-        questionnaire_data = {
-            "business_name": (payload.get("businessName") or f"Company {company_id}").strip(),
-            "industry": (payload.get("industry") or "General").strip(),
-            "target_audience": (payload.get("targetAudience") or "Modern consumers").strip(),
-            "brand_description": (payload.get("brandDescription") or payload.get("prompt") or "").strip(),
-            "tone": (payload.get("tone") or "").strip(),
-            "competitors": (payload.get("competitors") or "").strip(),
-            "unique_value": (payload.get("uniqueValue") or "").strip(),
-        }
-
-        if not questionnaire_data["brand_description"]:
-            return jsonify({
-                "success": False,
-                "message": "Missing brand description"
-            })
-
-        brand_profile = analyze_brand(questionnaire_data)
+        # Get company data from questionare
+        data = request.get_json()
+        company_id = data.get('companyId')
+        questionnaire = data.get('questionnaire', {})
+        
+        # Analyze brand and generate guidelines
+        brand_profile = analyze_brand(questionnaire)
+        guidelines = generate_brand_guidelines(brand_profile)
         print(f"[DEBUG] Brand profile result: {brand_profile}")
 
         # Check if analyze_brand returned an error
@@ -296,6 +336,7 @@ def generate_guidelines() -> Response:
         conn = db_connection()
         cursor = conn.cursor()
 
+        # Insert generated guidelines into database
         cursor.execute(
             """
             INSERT INTO brand_guidelines (company_id, content, generated_at)
@@ -382,6 +423,40 @@ def save_brand_guidelines() -> Response:
             conn.close()
 
 
+@app.route("/api/brand-guidelines/<int:company_id>", methods=["GET"])
+def get_brand_guidelines(company_id: int) -> tuple[Response, int]:
+    conn = None
+    cursor = None
+
+    try:
+        conn = db_connection()
+        cursor = conn.cursor()
+
+        cursor.execute(
+            "SELECT content FROM brand_guidelines WHERE company_id = %s;",
+            (company_id,),
+        )
+        row = cursor.fetchone()
+
+        if not row or not row[0]:
+            return jsonify({"content": None}), 200
+
+        return jsonify({"content": row[0]}), 200
+
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "message": "Failed to fetch guidelines",
+            "error": str(e)
+        }), 500
+
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
+
 # =====================================================
 # CONTENT
 # =====================================================
@@ -417,7 +492,8 @@ def create_content() -> Response:
         # -------------------------------------------------
         # Fetch brand guidelines (if any) for this company
         # -------------------------------------------------
-        cursor.execute("SELECT content FROM brand_guidelines WHERE company_id = %s;", (company_id,))
+        cursor.execute("SELECT content FROM brand_guidelines WHERE company_id = %s;",
+                       (company_id,))
         row = cursor.fetchone()
         brand_guidelines = (row[0] or "").strip() if row else ""
         
