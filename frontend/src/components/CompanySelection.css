@@ -78,6 +78,14 @@
   color: var(--text-primary);
 }
 
+.company-card h4 {
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: 400;
+  margin: 0 0 6px;
+  color: var(--text-primary);
+}
+
 .company-date {
   font-size: 12px;
   color: var(--text-muted);

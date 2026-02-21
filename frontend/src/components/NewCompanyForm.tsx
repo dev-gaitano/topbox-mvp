@@ -51,7 +51,7 @@ export default function NewCompanyForm({ onSuccess }: NewCompanyFormProps) {
 
   const [step, setStep] = useState(0);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [notification, setNotification] = useState<{ message: string; type: "error" | "warning" | "success" } | null>(null);
 
   const [form, setForm] = useState<FormState>({
     businessName: "",
@@ -91,7 +91,7 @@ export default function NewCompanyForm({ onSuccess }: NewCompanyFormProps) {
 
   const handleSubmit = async () => {
     setLoading(true);
-    setError("");
+    setNotification(null);
     try {
       // 1. Create company in DB
       const companyRes = await fetch(`${API_BASE}/api/companies`, {
@@ -131,15 +131,18 @@ export default function NewCompanyForm({ onSuccess }: NewCompanyFormProps) {
       });
       const guidelines = await guidelinesRes.json();
       if (!guidelines.success && !guidelines.guidelines)
-        throw new Error(guidelines.message || "Failed to generate guidelines");
+        setNotification({ message: guidelines.message || "Brand guidelines couldn't be generated — you can set them up later.", type: "warning" });
 
       // 3. Bubble the new company up to App, then go to home
-      onSuccess?.(company);
-      navigate("/");
+      setNotification({ message: `${form.businessName} has been created successfully!`, type: "success" });
+      setTimeout(() => {
+        onSuccess?.(company);
+        navigate("/");
+      }, 1200);
 
     } catch (e) {
       const message = e instanceof Error ? e.message : "Something went wrong. Please try again.";
-      setError(message);
+      setNotification({ message, type: "error" });
     } finally {
       setLoading(false);
     }
@@ -311,8 +314,15 @@ export default function NewCompanyForm({ onSuccess }: NewCompanyFormProps) {
           </div>
         </div>
 
-        {/* Error */}
-        {error && <div className="ncf-error-box">{error}</div>}
+        {/* Notification */}
+        {notification && (
+          <div className={`ncf-notification ncf-notification--${notification.type}`}>
+            <span className="ncf-notification-icon">
+              {notification.type === "success" ? "✓" : notification.type === "warning" ? "⚠" : "✕"}
+            </span>
+            {notification.message}
+          </div>
+        )}
 
         {/* Navigation */}
         <div className="ncf-nav">

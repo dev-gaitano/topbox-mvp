@@ -1,6 +1,15 @@
 export interface Company {
   id: number;
   name: string;
+  industry: string;
+  email: string;
+  monthly_budget: number;
+  description: string;
+  target_audience: string;
+  unique_value?: string;
+  main_competitors?: string[];
+  brand_personality: string[];
+  brand_tone?: string;
   createdAt?: string | null;
 }
 

@@ -362,15 +362,65 @@
   animation: spin 0.7s linear infinite;
 }
 
-/* ── Error ── */
-.ncf-error-box {
+/* ── Notifications ── */
+.ncf-notification {
   margin: 0 40px 12px;
   padding: 12px 16px;
   border-radius: 10px;
-  background: #FEF2F2;
-  border: 1px solid #FECACA;
-  color: #B91C1C;
   font-size: 13px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  animation: fadeIn 0.2s ease both;
+}
+
+.ncf-notification-icon {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+/* Error */
+.ncf-card .ncf-notification--error {
+  background: #FEF2F2 !important;
+  border: 1.5px solid #FECACA !important;
+  color: #B91C1C !important;
+}
+
+.ncf-card .ncf-notification--error .ncf-notification-icon {
+  background: #FCA5A5 !important;
+  color: #7F1D1D !important;
+}
+
+/* Warning */
+.ncf-card .ncf-notification--warning {
+  background: #FFFBEB !important;
+  border: 1.5px solid #FDE68A !important;
+  color: #92400E !important;
+}
+
+.ncf-card .ncf-notification--warning .ncf-notification-icon {
+  background: #FCD34D !important;
+  color: #78350F !important;
+}
+
+/* Success */
+.ncf-card .ncf-notification--success {
+  background: #F0FDF4 !important;
+  border: 1.5px solid #86EFAC !important;
+  color: #166534 !important;
+}
+
+.ncf-card .ncf-notification--success .ncf-notification-icon {
+  background: #4ADE80 !important;
+  color: #14532D !important;
 }
 
 /* ── Success ── */

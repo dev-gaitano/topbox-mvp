@@ -60,10 +60,11 @@ function CompanySelection({ selectedCompany, onSelectCompany }: CompanySelection
           {companies.map((company) => (
             <div
               key={company.id}
-              className={`company-card ${selectedCompany?.id === company.id ? 'selected' : ''}`}
+              className={`company-card ${selectedCompany?.id === company.id ? "selected" : ""}`}
               onClick={() => onSelectCompany(company)}
             >
               <h3>{company.name}</h3>
+              <h4>{company.industry}</h4>
               {company.createdAt && (
                 <p className="company-date">
                   Created: {new Date(company.createdAt).toLocaleDateString()}
