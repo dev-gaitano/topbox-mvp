@@ -53,14 +53,28 @@ def get_companies() -> Response:
         conn = db_connection()
         cursor = conn.cursor()
 
-        cursor.execute("SELECT id, name, created_at FROM companies ORDER BY id;")
+        cursor.execute("""
+                       SELECT id, name, industry, email, monthly_budget,
+                       description, target_audience, unique_value,
+                       main_competitors, brand_personality, brand_tone, created_at
+                       FROM companies ORDER BY created_at;
+                       """)
         rows = cursor.fetchall() or []
 
         companies = [
             {
                 "id": r[0],
                 "name": r[1],
-                "createdAt": r[2].isoformat() if r[2] else None,
+                "industry": r[2],
+                "email": r[3],
+                "monthly_budget": r[4],
+                "description": r[5],
+                "target_audience": r[6],
+                "unique_value": r[7],
+                "main_competitors": r[8],
+                "brand_personality": r[9],
+                "brand_tone": r[10],
+                "createdAt": r[11].isoformat() if r[11] else None,
             }
             for r in rows
         ]
@@ -87,6 +101,9 @@ def create_company() -> Response:
     cursor = None
 
     try:
+        conn = db_connection()
+        cursor = conn.cursor()
+
         payload = request.get_json(silent=True) or {}
         name = (payload.get("businessName") or "").strip()
         industry = (payload.get("industry") or "").strip()
@@ -98,13 +115,12 @@ def create_company() -> Response:
         main_competitors = (payload.get("competitors") or "").strip()
         brand_personality = payload.get("brandPersonality") or []
         brand_tone = (payload.get("tone") or "").strip()
-        platforms = payload.get("platforms") or []
         
         if not name:
             return jsonify({
                 "success": False,
                 "message": "Missing company name"
-            })
+            }), 400
 
         # Convert budget to integer if provided
         monthly_budget = 0
@@ -114,36 +130,38 @@ def create_company() -> Response:
             except ValueError:
                 pass
 
-        conn = db_connection()
-        cursor = conn.cursor()
-
         cursor.execute(
             """
-            INSERT INTO companies (name, industry, email, monthly_budget, description, target_audience, unique_value, main_competitors, brand_personality, brand_tone)
+            INSERT INTO companies (name, industry, email, monthly_budget,
+                                   description, target_audience, unique_value,
+                                   main_competitors, brand_personality, brand_tone)
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s::jsonb, %s)
             RETURNING id, name, created_at;
             """,
-            (name, industry, email if email else None, monthly_budget, description, target_audience, unique_value, json.dumps([main_competitors] if main_competitors else []), json.dumps(brand_personality), brand_tone),
+            (name, industry, email, monthly_budget, description, target_audience, unique_value, json.dumps([main_competitors] if main_competitors else []), json.dumps(brand_personality), brand_tone),
         )
         row = cursor.fetchone()
         conn.commit()
 
-        return jsonify(
-            {
+        return jsonify({
+            "success": True,
+            "message": "Company created successfully",
+            "data": {
                 "id": row[0],
                 "name": row[1],
                 "createdAt": row[2].isoformat() if row[2] else None,
             }
-        )
+        }), 201
 
     except Exception as e:
         if conn:
             conn.rollback()
+        print(f"Error creating company: {e}")
         return jsonify({
             "success": False,
             "message": "Failed to create company",
             "error": str(e)
-        })
+        }), 500
 
     finally:
         if cursor:
