@@ -45,7 +45,7 @@ def health() -> Response:
 # COMPANIES
 # =====================================================
 @app.route("/api/companies", methods=["GET"])
-def get_companies() -> Response:
+def get_companies() -> tuple[Response, int]:
     conn = None
     cursor = None
 
@@ -79,14 +79,15 @@ def get_companies() -> Response:
             for r in rows
         ]
 
-        return jsonify(companies)
+        return jsonify(companies), 200
 
     except Exception as e:
+        print(f"Error fetching companies: {e}")
         return jsonify({
             "success": False,
             "message": "Failed to fetch companies",
             "error": str(e)
-        })
+        }), 500
 
     finally:
         if cursor:
@@ -96,7 +97,7 @@ def get_companies() -> Response:
 
 
 @app.route("/api/companies", methods=["POST"])
-def create_company() -> Response:
+def create_company() -> tuple[Response, int]:
     conn = None
     cursor = None
 
