@@ -62,8 +62,15 @@ function ContentCreation({ companyId }: ContentCreationProps) {
         body: formData,
       });
 
+      const text = await response.text();
+      let data: any;
+      try {
+        data = JSON.parse(text);
+      } catch {
+        throw new Error(`Server returned non-JSON response (${response.status}). Check server logs.`);
+      }
+
       if (response.ok) {
-        const data = await response.json();
         if (!data.prompt || !data.caption) {
           alert('Warning: Some generated content may be missing. Please review before saving.');
         }
@@ -75,11 +82,11 @@ function ContentCreation({ companyId }: ContentCreationProps) {
         }));
         navigate('/content/review');
       } else {
-        const errorData = await response.json();
-        alert(`Failed to create content: ${errorData.message || 'Unknown error'}`);
+        alert(`Failed to create content: ${data.message || 'Unknown error'}`);
       }
     } catch (error) {
-      alert('Error creating content');
+      console.error('Content creation error:', error);
+      alert(`Error creating content: ${error instanceof Error ? error.message : String(error)}`);
     } finally {
       setSubmitting(false);
     }

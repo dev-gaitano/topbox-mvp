@@ -43,6 +43,7 @@ def generate_post_caption(
             response_format={"type": "json_object"}
         )
 
+        print(json.loads(response.choices[0].message.content))
         return json.loads(response.choices[0].message.content)
     except Exception as e:
         result = { 
@@ -440,30 +441,35 @@ Output format:
 
 # Analyze image
 def analyze_image(public_image_url: str) -> dict:
-    response = client.chat.completions.create(
-        model="gpt-4o",
-        messages=[
-            {
-                "role" : "user",
-                "content" : [
-                    {"type" : "text", "text": ANALYSIS_PROMPT},
-                    {
-                        "type" : "image_url",
-                        "image_url" : {
-                            "url" : public_image_url,
-                            "detail" : "high" 
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4o",
+            messages=[
+                {
+                    "role" : "user",
+                    "content" : [
+                        {"type" : "text", "text": ANALYSIS_PROMPT},
+                        {
+                            "type" : "image_url",
+                            "image_url" : {
+                                "url" : public_image_url,
+                                "detail" : "high" 
+                            }
                         }
-                    }
-                ]
-            }
-        ],
-        max_tokens=4000,
-        temperature=0.3,
-        response_format={"type" : "json_object"}
-    )
-    
-    analysis_result = json.loads(response.choices[0].message.content)
-    return analysis_result
+                    ]
+                }
+            ],
+            max_tokens=4000,
+            temperature=0.3,
+            response_format={"type" : "json_object"}
+        )
+        
+        analysis_result = json.loads(response.choices[0].message.content)
+        print(analysis_result)
+        return analysis_result
+    except Exception as e:
+        print(f"Error analyzing image: {e}")
+        return {"success": False, "error": str(e)}
 
 # Generate prompt
 def generate_post_image_prompt(
@@ -472,13 +478,21 @@ def generate_post_image_prompt(
     image_analysis: dict
 ) -> str:
     try:
+        caption_text = caption_data.get('caption', '')
+        industry = 'general business'
+        if 'Industry' in brand_guidelines:
+            try:
+                industry = brand_guidelines.split('Industry')[1].split('\n')[0].strip()
+            except Exception:
+                pass
+
         SYSTEM_PROMPT = f"""
         You are an expert at creating prompts for AI image generation.
 
         {brand_guidelines}
         {image_analysis}
 
-        Post Caption: {caption_data['caption']}
+        Post Caption: {caption_text}
 
         Create a DALL-E prompt that recreates the EXACT visual style from the analysis above.
         Focus on:
@@ -493,7 +507,7 @@ def generate_post_image_prompt(
         - Matches the brand's color palette
         - Reflects the brand voice visually
         - Is professional and engaging
-        - Works well for {brand_guidelines.split('Industry')[1].split('\n')[0].strip() if 'Industry' in brand_guidelines else 'general business'}
+        - Works well for {industry}
 
         Return ONLY the DALL-E prompt text, nothing else. Make it detailed and specific.
         Maximum 800 words.
@@ -512,30 +526,20 @@ def generate_post_image_prompt(
         print(response.choices[0].message.content.strip())
         return response.choices[0].message.content.strip()
     except Exception as e:
-        result = f"""
-            \"success\" : {False},
-            \"message\" : \"Error generating image prompt\",
-            \"error\" : {str(e)}
-        """
-        print(result)
-        return result
+        print(f"Error generating image prompt: {e}")
+        raise
 
 def generate_image(image_prompt: str, size: str) -> str:
     try:
         response = client.images.generate(
-            model="dall-e-2",
+            model="dall-e-3",
             prompt=image_prompt,
             size=size,
             n=1,
         )
 
+        print(response.data[0].url)
         return response.data[0].url
     except Exception as e:
-        result = f"""
-            \"success\" : {False},
-            \"message\" : \"Error generating image url\",
-            \"error\" : {str(e)}
-        """
-
-        print(result)
-        return result
+        print(f"Error generating image: {e}")
+        raise
