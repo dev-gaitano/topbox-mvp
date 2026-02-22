@@ -37,15 +37,6 @@ CORS(app, resources={
 )
 
 
-# NOTE: Where and when is this used
-# =====================================================
-# HEALTH
-# =====================================================
-@app.route("/api/health", methods=["GET"])
-def health() -> Response:
-    return jsonify({"ok": True})
-
-
 # =====================================================
 # COMPANIES
 # =====================================================
