@@ -1,6 +1,6 @@
 // App.tsx
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { Analytics } from '@vercel/analytics/next'
+import { Analytics } from '@vercel/analytics/react'
 import { useState } from 'react';
 import CompanySelection from './components/CompanySelection';
 import BrandGuidelines from './components/BrandGuidelines';
