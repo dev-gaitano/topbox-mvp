@@ -1,8 +1,8 @@
 # TopBox Studio Content Management System
 
-React + TypeScript + CSS + Vite Front-end
-Python + Flask Back-end API
-PostreSQL Database
+- React + TypeScript + CSS + Vite Front-end
+- Python + Flask Back-end API
+- PostreSQL Database
 
 ## Features
 
