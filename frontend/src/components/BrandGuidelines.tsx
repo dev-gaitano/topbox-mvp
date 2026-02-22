@@ -13,11 +13,11 @@ function BrandGuidelines({ companyId }: BrandGuidelinesProps) {
   const [uploading, setUploading] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [generatedContent, setGeneratedContent] = useState<string>('');
-  const [viewedContent, setViewedContent] = useState<string | null>(undefined);
+  const [viewedContent, setViewedContent] = useState<string | null>(null);
 
   const handleViewMode = async () => {
     setUploadMode('view');
-    setViewedContent(undefined); // reset to loading state
+    setViewedContent(null); // reset to loading state
     try {
       const res = await fetch(`${API_BASE}/api/brand-guidelines/${companyId}`);
       const data = await res.json();

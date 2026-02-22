@@ -504,7 +504,7 @@ def create_content() -> tuple[Response, int]:
 
         # 2. Run all AI calls
         # TODO: Get img_path from user upload
-        img_path = "https://res.cloudinary.com/diwkfbsgv/image/upload/v1771693046/prompt_eng-07_v0czlu.jpg"
+        img_path = "https://res.cloudinary.com/diwkfbsgv/image/upload/v1771697108/prompt_eng-08_rohulg.jpg"
 
         image_analysis = analyze_image(img_path)
 
