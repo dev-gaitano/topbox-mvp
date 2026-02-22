@@ -24,7 +24,7 @@ CORS(app, resources={
         r"/api/*": {
             "origins": [
             "http://localhost:3000", # Local
-            "https://topbox-mvp-git-dev-dev-gaitanos-projects.vercel.app" # dev
+            "https://topbox-mvp-git-dev-dev-gaitanos-projects.vercel.app", # dev
             "https://topbox-mvp.vercel.app" # Prod
             ],
             "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
