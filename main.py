@@ -24,6 +24,7 @@ CORS(app, resources={
         r"/api/*": {
             "origins": [
             "http://localhost:3000", # Local
+            "https://topbox-mvp-git-dev-dev-gaitanos-projects.vercel.app" # dev
             "https://topbox-mvp.vercel.app" # Prod
             ],
             "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
@@ -38,16 +39,6 @@ CORS(app, resources={
 # =====================================================
 # HEALTH
 # =====================================================
-@app.errorhandler(Exception)
-def handle_exception(e):
-    import traceback
-    print(traceback.format_exc())
-    return jsonify({
-        "success": False,
-        "message": str(e),
-    }), 500
-
-
 @app.route("/api/health", methods=["GET"])
 def health() -> Response:
     return jsonify({"ok": True})
