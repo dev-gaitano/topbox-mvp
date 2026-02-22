@@ -1,5 +1,6 @@
 // App.tsx
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { Analytics } from '@vercel/analytics/next'
 import { useState } from 'react';
 import CompanySelection from './components/CompanySelection';
 import BrandGuidelines from './components/BrandGuidelines';
@@ -57,6 +58,7 @@ function App() {
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </main>
+        <Analytics />
       </div>
     </Router>
   );
