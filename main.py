@@ -42,8 +42,7 @@ CORS(app, resources={
 # =====================================================
 @app.route("/api/companies", methods=["GET"])
 def get_companies() -> tuple[Response, int]:
-    conn = None
-    cursor = None
+    conn = cursor = None
 
     try:
         conn = db_connection()
@@ -96,8 +95,7 @@ def get_companies() -> tuple[Response, int]:
 
 @app.route("/api/companies", methods=["POST"])
 def create_company() -> tuple[Response, int]:
-    conn = None
-    cursor = None
+    conn = cursor = None
 
     try:
         conn = db_connection()
@@ -190,8 +188,7 @@ def create_company() -> tuple[Response, int]:
 
 @app.route("/api/companies/<int:company_id>", methods=["GET"])
 def get_company(company_id) -> tuple[Response, int]:
-    conn = None
-    cursor = None
+    conn = cursor = None
 
     try:
         conn = db_connection()
@@ -254,8 +251,7 @@ def get_company(company_id) -> tuple[Response, int]:
 # =====================================================
 @app.route("/api/brand-guidelines/upload", methods=["POST"])
 def upload_brand_guidelines() -> Response:
-    conn = None
-    cursor = None
+    conn = cursor = None
 
     try:
         if "file" not in request.files:
@@ -328,8 +324,7 @@ def upload_brand_guidelines() -> Response:
 
 @app.route("/api/brand-guidelines/generate", methods=["POST"])
 def generate_guidelines() -> tuple[Response, int]:
-    conn = None
-    cursor = None
+    conn = cursor = None
 
     try:
         conn = db_connection()
@@ -371,6 +366,7 @@ def generate_guidelines() -> tuple[Response, int]:
 
         return jsonify({
             "success": True,
+            "message": "Guidelines generated successfully",
             "content": brand_guidelines
         }), 201
 
@@ -392,8 +388,7 @@ def generate_guidelines() -> tuple[Response, int]:
 
 @app.route("/api/brand-guidelines/save", methods=["POST"])
 def save_brand_guidelines() -> tuple[Response, int]:
-    conn = None
-    cursor = None
+    conn = cursor = None
 
     try:
         conn = db_connection()
@@ -454,8 +449,7 @@ def save_brand_guidelines() -> tuple[Response, int]:
 
 @app.route("/api/brand-guidelines/<int:company_id>", methods=["GET"])
 def get_brand_guidelines(company_id: int) -> tuple[Response, int]:
-    conn = None
-    cursor = None
+    conn = cursor = None
 
     try:
         conn = db_connection()
@@ -507,29 +501,44 @@ def create_content() -> tuple[Response, int]:
         platform = (request.form.get("platform") or "").strip()
 
         if not company_id_raw.isdigit():
-            return jsonify({"success": False, "message": "Invalid companyId"}), 400
+            return jsonify({
+                "success": False,
+                "message": "Invalid companyId"
+            }), 400
         company_id = int(company_id_raw)
-        if not topic:
-            return jsonify({"success": False, "message": "Missing topic"}), 400
-        if not platform:
-            return jsonify({"success": False, "message": "Missing platform"}), 400
 
-        # 1. Fetch brand guidelines
+        if not topic:
+            return jsonify({
+                "success": False,
+                "message": "Missing topic"
+            }), 400
+
+        if not platform:
+            return jsonify({
+                "success": False,
+                "message": "Missing platform"
+            }), 400
+
+        # Fetch brand guidelines
         brand_guidelines = "Modern, professional brand with clean aesthetics"
         conn = cursor = None
         try:
             conn = db_connection()
             cursor = conn.cursor()
-            cursor.execute("SELECT content FROM brand_guidelines WHERE company_id = %s;", (company_id,))
+            cursor.execute("""
+                           SELECT content FROM brand_guidelines WHERE company_id = %s;
+                           """, (company_id,))
             row = cursor.fetchone()
+
             if row and row[0]:
                 brand_guidelines = row[0].strip()
+
         finally:
             if cursor: cursor.close()
             if conn: conn.close()
             conn = cursor = None
 
-        # 2. Run all AI calls
+        # Run all AI calls
         # TODO: Get img_path from user upload
         img_path = "https://res.cloudinary.com/diwkfbsgv/image/upload/v1771697108/prompt_eng-08_rohulg.jpg"
 
@@ -601,6 +610,13 @@ def create_content() -> tuple[Response, int]:
             if cursor: cursor.close()
             if conn: conn.close()
 
+        # Check if row was returned
+        if not saved:
+            return jsonify({
+                "success": False,
+                "message": "Failed to return saved results",
+            }), 500
+
         reference_urls = json.loads(saved[4] or "[]")
 
         return jsonify({
@@ -628,8 +644,7 @@ def create_content() -> tuple[Response, int]:
 
 @app.route("/api/content/latest", methods=["GET"])
 def latest_content() -> Response:
-    conn = None
-    cursor = None
+    conn = cursor = None
 
     try:
         company_id_raw = (request.args.get("companyId") or "").strip()
@@ -697,8 +712,7 @@ def latest_content() -> Response:
 
 @app.route("/api/content/save", methods=["POST"])
 def save_content() -> Response:
-    conn = None
-    cursor = None
+    conn = cursor = None
 
     try:
         payload = request.get_json(silent=True) or {}
@@ -754,6 +768,13 @@ def save_content() -> Response:
             row = cursor.fetchone()
 
         conn.commit()
+
+        # Check if row was returned
+        if not row:
+            return jsonify({
+                "success": False,
+                "message": "Failed to return saved content",
+            })
 
         return jsonify(
             {
