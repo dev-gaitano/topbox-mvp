@@ -1,3 +1,4 @@
+from typing import Any
 from flask import Flask, Response, request, jsonify, send_from_directory
 from flask_cors import CORS
 from databaseConnection import db_connection
@@ -10,16 +11,17 @@ from pathlib import Path
 from brandAgent import analyze_brand, generate_brand_guidelines
 from contentAgent import analyze_image, generate_post_caption, generate_post_image_prompt, generate_image
 
-# Config
+# Load environment variables
 load_dotenv()
 
+# Define `app`
 app = Flask(__name__)
 
 # TODO: Remove `DATA_DIR`
 DATA_DIR = Path(__file__).resolve().parent / "data"
 UPLOADS_DIR = DATA_DIR / "uploads"
 
-
+# Setup CORS
 CORS(app, resources={
         r"/api/*": {
             "origins": [
@@ -56,6 +58,7 @@ def get_companies() -> tuple[Response, int]:
         conn = db_connection()
         cursor = conn.cursor()
 
+        # Get all companies from database
         cursor.execute("""
                        SELECT id, name, industry, email, monthly_budget,
                        description, target_audience, unique_value,
@@ -64,7 +67,8 @@ def get_companies() -> tuple[Response, int]:
                        """)
         rows = cursor.fetchall() or []
 
-        companies = [
+        # Store companies in a list of dicts
+        companies: list[dict[str, Any]] = [
             {
                 "id": r[0],
                 "name": r[1],
@@ -109,18 +113,26 @@ def create_company() -> tuple[Response, int]:
         cursor = conn.cursor()
 
         # Get data from input
-        payload = request.get_json(silent=True) or {}
-        name = (payload.get("businessName") or "").strip()
-        industry = (payload.get("industry") or "").strip()
-        email = (payload.get("email") or "").strip()
-        monthly_budget_str = (payload.get("budget") or "").strip()
-        description = (payload.get("brandDescription") or "").strip()
-        target_audience = (payload.get("targetAudience") or "").strip()
-        unique_value = (payload.get("uniqueValue") or "").strip()
-        main_competitors = (payload.get("competitors") or "").strip()
-        brand_personality = payload.get("brandPersonality") or []
-        brand_tone = (payload.get("tone") or "").strip()
+        company_data: dict[str, Any] | None = request.get_json(silent=True)
+
+        if not company_data:
+            return jsonify({
+                "success": False,
+                "message": "No JSON data provided"
+            }), 400
+
+        name: str | None = (company_data.get("businessName") or "").strip()
+        industry: str | None = (company_data.get("industry") or "").strip()
+        email: str | None = (company_data.get("email") or "").strip()
+        monthly_budget_str: str | None = (company_data.get("budget") or "").strip()
+        description: str | None = (company_data.get("brandDescription") or "").strip()
+        target_audience: str | None = (company_data.get("targetAudience") or "").strip()
+        unique_value: str | None = (company_data.get("uniqueValue") or "").strip()
+        main_competitors: str | None = (company_data.get("competitors") or "").strip()
+        brand_personality: list | None = company_data.get("brandPersonality") or []
+        brand_tone: str | None = (company_data.get("tone") or "").strip()
         
+        # Check if comapany name was provided
         if not name:
             return jsonify({
                 "success": False,
@@ -144,10 +156,19 @@ def create_company() -> tuple[Response, int]:
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s::jsonb, %s)
             RETURNING id, name, created_at;
             """,
-            (name, industry, email, monthly_budget, description, target_audience, unique_value, json.dumps([main_competitors] if main_competitors else []), json.dumps(brand_personality), brand_tone),
+            (name, industry, email, monthly_budget, description, target_audience,
+             unique_value, json.dumps([main_competitors] if main_competitors else []),
+             json.dumps(brand_personality), brand_tone),
         )
         row = cursor.fetchone()
         conn.commit()
+
+        # Check if row was returned
+        if not row:
+            return jsonify({
+                "success": False,
+                "message": "Failed to return created company data",
+            }), 500
 
         return jsonify({
             "success": True,
@@ -185,6 +206,7 @@ def get_company(company_id) -> tuple[Response, int]:
         conn = db_connection()
         cursor = conn.cursor()
 
+        # Get company from database
         cursor.execute(
             """
             SELECT id, name, industry, email, monthly_budget,
@@ -203,7 +225,8 @@ def get_company(company_id) -> tuple[Response, int]:
                 "message": "Company not found"
             }), 404
 
-        return jsonify({
+        # Store company data in a dict
+        company: dict[str, Any] = {
             "id": row[0],
             "name": row[1],
             "industry": row[2],
@@ -216,7 +239,9 @@ def get_company(company_id) -> tuple[Response, int]:
             "brand_personality": row[9],
             "brand_tone": row[10],
             "createdAt": row[11].isoformat() if row[11] else None,
-        }), 200
+        }
+
+        return jsonify(company), 200
 
     except Exception as e:
         print(f"Error fetching company: {e}")
@@ -311,11 +336,14 @@ def upload_brand_guidelines() -> Response:
 
 
 @app.route("/api/brand-guidelines/generate", methods=["POST"])
-def generate_guidelines() -> Response:
+def generate_guidelines() -> tuple[Response, int]:
     conn = None
     cursor = None
 
     try:
+        conn = db_connection()
+        cursor = conn.cursor()
+
         # Get company data from questionare
         data = request.get_json()
         company_id = data.get('companyId')
@@ -324,20 +352,17 @@ def generate_guidelines() -> Response:
         # Analyze brand and generate guidelines
         brand_profile = analyze_brand(questionnaire)
         guidelines = generate_brand_guidelines(brand_profile)
-        print(f"[DEBUG] Brand profile result: {brand_profile}")
+        print(f"Brand profile result: {brand_profile}")
 
         # Check if analyze_brand returned an error
-        if "success" in brand_profile and not brand_profile.get("success"):
+        if not brand_profile.get("success"):
             return jsonify({
                 "success": False,
                 "message": "Failed to analyze brand",
                 "error": brand_profile.get("error", "Unknown error")
-            })
+            }), 400
 
-        guidelines = generate_brand_guidelines(brand_profile)
-
-        conn = db_connection()
-        cursor = conn.cursor()
+        brand_guidelines = generate_brand_guidelines(brand_profile)
 
         # Insert generated guidelines into database
         cursor.execute(
@@ -349,11 +374,14 @@ def generate_guidelines() -> Response:
                 content = EXCLUDED.content,
                 generated_at = EXCLUDED.generated_at;
             """,
-            (company_id, guidelines),
+            (company_id, brand_guidelines),
         )
         conn.commit()
 
-        return jsonify({"success": True, "content": guidelines})
+        return jsonify({
+            "success": True,
+            "content": brand_guidelines
+        }), 201
 
     except Exception as e:
         if conn:
@@ -362,7 +390,7 @@ def generate_guidelines() -> Response:
             "success": False,
             "message": "Failed to generate guidelines",
             "error": str(e)
-        })
+        }), 500
 
     finally:
         if cursor:
@@ -372,29 +400,33 @@ def generate_guidelines() -> Response:
 
 
 @app.route("/api/brand-guidelines/save", methods=["POST"])
-def save_brand_guidelines() -> Response:
+def save_brand_guidelines() -> tuple[Response, int]:
     conn = None
     cursor = None
 
     try:
+        conn = db_connection()
+        cursor = conn.cursor()
+
         payload = request.get_json(silent=True) or {}
         company_id = payload.get("companyId")
         content = (payload.get("content") or "").strip()
 
+        # Validate the company_id data type
         if not isinstance(company_id, int) or company_id <= 0:
             return jsonify({
                 "success": False,
                 "message": "Invalid companyId"
-            })
+            }), 400
+
+        # Check if content is available
         if not content:
             return jsonify({
                 "success": False,
                 "message": "Missing content"
-            })
+            }), 400
 
-        conn = db_connection()
-        cursor = conn.cursor()
-
+        # Insert company guidelines into database
         cursor.execute(
             """
             INSERT INTO brand_guidelines (company_id, content, saved_at)
@@ -408,7 +440,10 @@ def save_brand_guidelines() -> Response:
         )
         conn.commit()
 
-        return jsonify({"success": True, "ok": True})
+        return jsonify({
+            "success": True,
+            "message": "Guidelines saved successfully"
+        }), 201
 
     except Exception as e:
         if conn:
@@ -417,7 +452,7 @@ def save_brand_guidelines() -> Response:
             "success": False,
             "message": "Failed to save guidelines",
             "error": str(e)
-        })
+        }), 500
 
     finally:
         if cursor:
@@ -435,16 +470,26 @@ def get_brand_guidelines(company_id: int) -> tuple[Response, int]:
         conn = db_connection()
         cursor = conn.cursor()
 
+        # Get brand guidelines for selected company
         cursor.execute(
             "SELECT content FROM brand_guidelines WHERE company_id = %s;",
             (company_id,),
         )
         row = cursor.fetchone()
 
+        # Check if guidelines exist
         if not row or not row[0]:
-            return jsonify({"content": None}), 200
+            return jsonify({
+                "success": False,
+                "message": "Company guidelines/content not found",
+                "content": None
+            }), 200
 
-        return jsonify({"content": row[0]}), 200
+        return jsonify({
+            "success": True,
+            "message": "Company guidelines fetched successfully",
+            "content": row[0]
+        }), 200
 
     except Exception as e:
         return jsonify({
