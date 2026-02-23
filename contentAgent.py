@@ -475,7 +475,7 @@ def analyze_image(public_image_url: str) -> dict:
 def generate_post_image_prompt(
     brand_guidelines: str,
     caption_data: dict,
-    image_analysis: dict
+    image_analysis: dict | list
 ) -> str:
     try:
         caption_text = caption_data.get('caption', '')
