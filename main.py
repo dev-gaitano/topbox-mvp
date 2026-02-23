@@ -346,11 +346,10 @@ def generate_guidelines() -> tuple[Response, int]:
         
         # Analyze brand and generate guidelines
         brand_profile = analyze_brand(questionnaire)
-        guidelines = generate_brand_guidelines(brand_profile)
         print(f"Brand profile result: {brand_profile}")
 
         # Check if analyze_brand returned an error
-        if not brand_profile.get("success"):
+        if brand_profile.get("success") is False:
             return jsonify({
                 "success": False,
                 "message": "Failed to analyze brand",
