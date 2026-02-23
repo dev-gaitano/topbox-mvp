@@ -7,6 +7,8 @@ interface ContentCreationProps {
   companyId: number;
 }
 
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+
 const PLATFORM_ICONS: Record<string, string> = {
   instagram: '📸',
   twitter: '🐦',
@@ -45,48 +47,73 @@ function ContentCreation({ companyId }: ContentCreationProps) {
     addFiles(Array.from(e.dataTransfer.files));
   };
 
+  const safeJson = async (res: Response) => {
+    const text = await res.text();
+    try {
+      return JSON.parse(text);
+    } catch {
+      throw new Error(`Non-JSON response from ${res.url} (${res.status}): ${text.slice(0, 200)}`);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!topic.trim()) return;
 
     try {
       setSubmitting(true);
+
+      // Step 1: Upload images to Cloudinary
       const formData = new FormData();
       formData.append('companyId', companyId.toString());
-      formData.append('topic', topic.trim());
-      formData.append('platform', platform);
       referenceImages.forEach(image => formData.append('referenceImages', image));
 
-      const response = await fetch('/api/content/create', {
+      const uploadRes = await fetch(`${API_BASE}/api/content/upload_images`, {
         method: 'POST',
         body: formData,
       });
+      const uploadData = await safeJson(uploadRes);
+      if (!uploadRes.ok) throw new Error(uploadData.message || 'Failed to upload images');
 
-      const text = await response.text();
-      let data: any;
-      try {
-        data = JSON.parse(text);
-      } catch {
-        throw new Error(`Server returned non-JSON response (${response.status}). Check server logs.`);
-      }
+      // Step 2: Analyze uploaded images
+      const analyzeRes = await fetch(`${API_BASE}/api/content/analyze_images`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ urls: uploadData.urls }),
+      });
+      const analyzeData = await safeJson(analyzeRes);
+      if (!analyzeRes.ok) throw new Error(analyzeData.message || 'Failed to analyze images');
 
-      if (response.ok) {
-        if (!data.prompt || !data.caption) {
-          alert('Warning: Some generated content may be missing. Please review before saving.');
-        }
-        sessionStorage.setItem('pendingContent', JSON.stringify({
-          ...data,
-          topic,
+      // Step 3: Generate prompt and caption
+      const createRes = await fetch(`${API_BASE}/api/content/create`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          companyId,
+          topic: topic.trim(),
           platform,
-          referenceImages: referenceImages.map(f => f.name),
-        }));
-        navigate('/content/review');
-      } else {
-        alert(`Failed to create content: ${data.message || 'Unknown error'}`);
+          analyses: analyzeData.analyses,
+        }),
+      });
+      const createData = await safeJson(createRes);
+      if (!createRes.ok) throw new Error(createData.message || 'Failed to generate content');
+
+      if (!createData.prompt || !createData.caption) {
+        alert('Warning: Some generated content may be missing. Please review before saving.');
       }
+
+      // Pass everything to the review page
+      sessionStorage.setItem('pendingContent', JSON.stringify({
+        ...createData,
+        topic,
+        platform,
+        referenceImageUrls: uploadData.urls,
+      }));
+      navigate('/content/review');
+
     } catch (error) {
       console.error('Content creation error:', error);
-      alert(`Error creating content: ${error instanceof Error ? error.message : String(error)}`);
+      alert(`Error: ${error instanceof Error ? error.message : String(error)}`);
     } finally {
       setSubmitting(false);
     }
