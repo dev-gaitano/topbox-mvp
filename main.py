@@ -686,7 +686,10 @@ def latest_content() -> Response:
             conn.close()
 
 
-# =====================@app.route("/api/content/save", methods=["POST"])
+# =====================================================
+# CONTENT SAVE
+# =====================================================
+@app.route("/api/content/save", methods=["POST"])
 def save_content() -> tuple[Response, int]:
     conn = cursor = None
 
@@ -749,7 +752,8 @@ def save_content() -> tuple[Response, int]:
         if cursor: cursor.close()
         if conn: conn.close()
 
-# ================================
+
+# =====================================================
 # UPLOADS
 # =====================================================
 @app.route("/uploads/<path:filename>", methods=["GET"])
