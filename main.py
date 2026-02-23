@@ -686,103 +686,70 @@ def latest_content() -> Response:
             conn.close()
 
 
-@app.route("/api/content/save", methods=["POST"])
-def save_content() -> Response:
+# =====================@app.route("/api/content/save", methods=["POST"])
+def save_content() -> tuple[Response, int]:
     conn = cursor = None
 
     try:
         payload = request.get_json(silent=True) or {}
-
         company_id = payload.get("companyId")
         topic = (payload.get("topic") or "").strip()
         platform = (payload.get("platform") or "").strip()
         prompt = (payload.get("prompt") or "").strip()
         caption = (payload.get("caption") or "").strip()
-        post_id = payload.get("id")
+        reference_image_urls = payload.get("referenceImageUrls") or []
 
         if not isinstance(company_id, int) or company_id <= 0:
-            return jsonify({
-                "success": False,
-                "message": "Invalid companyId"
-            })
+            return jsonify({"success": False, "message": "Invalid companyId"}), 400
         if not topic or not platform:
-            return jsonify({
-                "success": False,
-                "message": "Missing topic or platform"
-            })
+            return jsonify({"success": False, "message": "Missing topic or platform"}), 400
+        if not prompt:
+            return jsonify({"success": False, "message": "Missing prompt"}), 400
 
+        # Generate the final image from the approved prompt
+        image_url = generate_image(prompt, size="1024x1024")
+
+        # Save to DB
         conn = db_connection()
         cursor = conn.cursor()
-
-        row = None
-        if isinstance(post_id, int):
-            cursor.execute(
-                """
-                UPDATE content_posts
-                SET company_id = %s,
-                    topic = %s,
-                    platform = %s,
-                    prompt = %s,
-                    caption = %s,
-                    updated_at = NOW()
-                WHERE id = %s
-                RETURNING id, company_id, topic, platform, reference_image_urls::text, prompt, caption, created_at, updated_at;
-                """,
-                (company_id, topic, platform, prompt, caption, post_id),
-            )
-            row = cursor.fetchone()
-
-        if not row:
-            cursor.execute(
-                """
-                INSERT INTO content_posts (company_id, topic, platform, prompt, caption, reference_image_urls, updated_at)
-                VALUES (%s, %s, %s, %s, %s, '[]'::jsonb, NOW())
-                RETURNING id, company_id, topic, platform, reference_image_urls::text, prompt, caption, created_at, updated_at;
-                """,
-                (company_id, topic, platform, prompt, caption),
-            )
-            row = cursor.fetchone()
-
+        cursor.execute(
+            """
+            INSERT INTO content_posts (company_id, topic, platform, reference_image_urls, prompt, caption)
+            VALUES (%s, %s, %s, %s::jsonb, %s, %s)
+            RETURNING id, company_id, topic, platform, reference_image_urls::text, prompt, caption, created_at, updated_at;
+            """,
+            (company_id, topic, platform, json.dumps(reference_image_urls), prompt, caption),
+        )
+        saved = cursor.fetchone()
         conn.commit()
 
-        # Check if row was returned
-        if not row:
-            return jsonify({
-                "success": False,
-                "message": "Failed to return saved content",
-            })
+        if not saved:
+            return jsonify({"success": False, "message": "Failed to save content"}), 500
 
-        return jsonify(
-            {
-                "id": row[0],
-                "companyId": row[1],
-                "topic": row[2],
-                "platform": row[3],
-                "referenceImageUrls": json.loads(row[4] or "[]"),
-                "prompt": row[5] or "",
-                "caption": row[6] or "",
-                "createdAt": row[7].isoformat() if row[7] else None,
-                "updatedAt": row[8].isoformat() if row[8] else None,
-            }
-        )
+        return jsonify({
+            "id": saved[0],
+            "companyId": saved[1],
+            "topic": saved[2],
+            "platform": saved[3],
+            "referenceImageUrls": json.loads(saved[4] or "[]"),
+            "prompt": saved[5] or "",
+            "caption": saved[6] or "",
+            "imageUrl": image_url,
+            "createdAt": saved[7].isoformat() if saved[7] else None,
+            "updatedAt": saved[8].isoformat() if saved[8] else None,
+        }), 201
 
     except Exception as e:
-        if conn:
-            conn.rollback()
-        return jsonify({
-            "success": False,
-            "message": "Failed to save content",
-            "error": str(e)
-        })
+        if conn: conn.rollback()
+        import traceback
+        print(traceback.format_exc())
+        return jsonify({"success": False, "message": "Failed to save content", "error": str(e)}), 500
 
     finally:
-        if cursor:
-            cursor.close()
-        if conn:
-            conn.close()
+        if cursor: cursor.close()
+        if conn: conn.close()
 
-
-# =====================================================
+# ================================
 # UPLOADS
 # =====================================================
 @app.route("/uploads/<path:filename>", methods=["GET"])
