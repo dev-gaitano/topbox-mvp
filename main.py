@@ -11,7 +11,7 @@ import cloudinary
 import cloudinary.uploader
 
 from brandAgent import analyze_brand, generate_brand_guidelines
-from contentAgent import analyze_image, generate_post_caption, generate_post_image_prompt, generate_image
+from contentAgent import analyze_images, generate_post_caption, generate_post_image_prompt, generate_image
 
 # Load environment variables
 load_dotenv()
@@ -529,22 +529,19 @@ def upload_images() -> tuple[Response, int]:
 
 
 @app.route("/api/content/analyze_images", methods=["POST"])
-def analyze_images() -> tuple[Response, int]:
+def analyze_images_route() -> tuple[Response, int]:
     img_data = request.get_json(silent=True) or {}
     img_urls: list | None = img_data.get("urls") or []
 
     if not img_urls:
         return jsonify({"success": False, "message": "No image URLs provided"}), 400
 
-    results = []
-    for url in img_urls:
-        img_analysis = analyze_image(url)
-        results.append(img_analysis)
+    img_analysis = analyze_images(img_urls)
 
     return jsonify({
         "success": True,
         "message": "Images analyzed successfully",
-        "analyses": results
+        "analyses": img_analysis
     }), 200
 
 
