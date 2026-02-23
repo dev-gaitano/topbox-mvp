@@ -2,6 +2,7 @@ from dotenv import load_dotenv
 import os
 import json
 from openai import OpenAI
+from openai.types.chat import ChatCompletionUserMessageParam, ChatCompletionContentPartParam
 
 load_dotenv()
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
@@ -440,36 +441,40 @@ Output format:
 """
 
 # Analyze image
-def analyze_image(public_image_url: str) -> dict:
+def analyze_images(public_image_urls: list[str]) -> dict:
     try:
+        content: list[ChatCompletionContentPartParam] = [
+            {"type": "text", "text": ANALYSIS_PROMPT}
+        ]
+        for url in public_image_urls:
+            content.append({
+                "type": "image_url",
+                "image_url": {
+                    "url": url,
+                    "detail": "high"
+                }
+            })
+
+        message: ChatCompletionUserMessageParam = {
+            "role": "user",
+            "content": content
+        }
+
         response = client.chat.completions.create(
             model="gpt-4o",
-            messages=[
-                {
-                    "role" : "user",
-                    "content" : [
-                        {"type" : "text", "text": ANALYSIS_PROMPT},
-                        {
-                            "type" : "image_url",
-                            "image_url" : {
-                                "url" : public_image_url,
-                                "detail" : "high" 
-                            }
-                        }
-                    ]
-                }
-            ],
+            messages=[message],
             max_tokens=4000,
             temperature=0.3,
-            response_format={"type" : "json_object"}
+            response_format={"type": "json_object"}
         )
-        
+
         analysis_result = json.loads(response.choices[0].message.content)
         print(analysis_result)
         return analysis_result
     except Exception as e:
-        print(f"Error analyzing image: {e}")
+        print(f"Error analyzing images: {e}")
         return {"success": False, "error": str(e)}
+
 
 # Generate prompt
 def generate_post_image_prompt(
