@@ -24,6 +24,7 @@ function ContentCreation({ companyId }: ContentCreationProps) {
   const [referenceImages, setReferenceImages] = useState<File[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [dragging, setDragging] = useState(false);
+  const [status, setStatus] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const platforms: Platform[] = ['instagram', 'twitter', 'facebook', 'linkedin', 'tiktok'];
@@ -64,6 +65,7 @@ function ContentCreation({ companyId }: ContentCreationProps) {
       setSubmitting(true);
 
       // Step 1: Upload images to Cloudinary
+      setStatus('Uploading images…');
       const formData = new FormData();
       formData.append('companyId', companyId.toString());
       referenceImages.forEach(image => formData.append('referenceImages', image));
@@ -76,6 +78,7 @@ function ContentCreation({ companyId }: ContentCreationProps) {
       if (!uploadRes.ok) throw new Error(uploadData.message || 'Failed to upload images');
 
       // Step 2: Analyze uploaded images
+      setStatus('Analyzing images…');
       const analyzeRes = await fetch(`${API_BASE}/api/content/analyze_images`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -85,6 +88,7 @@ function ContentCreation({ companyId }: ContentCreationProps) {
       if (!analyzeRes.ok) throw new Error(analyzeData.message || 'Failed to analyze images');
 
       // Step 3: Generate prompt and caption
+      setStatus('Generating prompt…');
       const createRes = await fetch(`${API_BASE}/api/content/create`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -102,7 +106,6 @@ function ContentCreation({ companyId }: ContentCreationProps) {
         alert('Warning: Some generated content may be missing. Please review before saving.');
       }
 
-      // Pass everything to the review page
       sessionStorage.setItem('pendingContent', JSON.stringify({
         ...createData,
         topic,
@@ -116,6 +119,7 @@ function ContentCreation({ companyId }: ContentCreationProps) {
       alert(`Error: ${error instanceof Error ? error.message : String(error)}`);
     } finally {
       setSubmitting(false);
+      setStatus('');
     }
   };
 
@@ -164,7 +168,7 @@ function ContentCreation({ companyId }: ContentCreationProps) {
             {submitting ? (
               <span className="cc-btn-inner">
                 <span className="cc-spinner" />
-                Generating…
+                {status}
               </span>
             ) : 'Generate Prompt'}
           </button>
