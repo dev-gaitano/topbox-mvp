@@ -7,6 +7,8 @@ from dotenv import load_dotenv
 import os
 import json
 from pathlib import Path
+import cloudinary
+import cloudinary.uploader
 
 from brandAgent import analyze_brand, generate_brand_guidelines
 from contentAgent import analyze_image, generate_post_caption, generate_post_image_prompt, generate_image
@@ -34,6 +36,13 @@ CORS(app, resources={
             "supports_credentials": True,
         }
     },
+)
+
+# Configure cloudinary
+cloudinary.config(
+    cloud_name=os.getenv("CLOUDINARY_CLOUD_NAME"),
+    api_key=os.getenv("CLOUDINARY_API_KEY"),
+    api_secret=os.getenv("CLOUDINARY_API_SECRET")
 )
 
 
@@ -493,31 +502,67 @@ def get_brand_guidelines(company_id: int) -> tuple[Response, int]:
 # =====================================================
 # CONTENT
 # =====================================================
+@app.route("/api/content/upload_images", methods=["POST"])
+def upload_images() -> tuple[Response, int]:
+    company_id = int((request.form.get("companyId") or "").strip())
+
+    ref_imgs = request.files.getlist("referenceImages")
+     
+    if not ref_imgs or all(not f.filename for f in ref_imgs):
+        return jsonify({"success": False, "message": "No images provided"}), 400
+
+    uploaded_urls = []
+    for f in ref_imgs:
+        if not f or not f.filename:
+            continue
+        result = cloudinary.uploader.upload(
+            f,
+            folder=f"reference-images/{company_id}"
+        )
+        uploaded_urls.append(result["secure_url"])
+
+    return jsonify({
+        "success": True,
+        "message": "Images uploaded successfully",
+        "urls": uploaded_urls
+    }), 200
+
+
+@app.route("/api/content/analyze_images", methods=["POST"])
+def analyze_images() -> tuple[Response, int]:
+    img_data = request.get_json(silent=True) or {}
+    img_urls: list | None = img_data.get("urls") or []
+
+    if not img_urls:
+        return jsonify({"success": False, "message": "No image URLs provided"}), 400
+
+    results = []
+    for url in img_urls:
+        img_analysis = analyze_image(url)
+        results.append(img_analysis)
+
+    return jsonify({
+        "success": True,
+        "message": "Images analyzed successfully",
+        "analyses": results
+    }), 200
+
+
 @app.route("/api/content/create", methods=["POST"])
 def create_content() -> tuple[Response, int]:
     try:
-        company_id_raw = (request.form.get("companyId") or "").strip()
-        topic = (request.form.get("topic") or "").strip()
-        platform = (request.form.get("platform") or "").strip()
+        content_data = request.get_json(silent=True) or {}
+        company_id = content_data.get("companyId")
+        topic = (content_data.get("topic") or "").strip()
+        platform = (content_data.get("platform") or "").strip()
+        analyses = content_data.get("analyses") or []
 
-        if not company_id_raw.isdigit():
-            return jsonify({
-                "success": False,
-                "message": "Invalid companyId"
-            }), 400
-        company_id = int(company_id_raw)
-
+        if not isinstance(company_id, int) or company_id <= 0:
+            return jsonify({"success": False, "message": "Invalid companyId"}), 400
         if not topic:
-            return jsonify({
-                "success": False,
-                "message": "Missing topic"
-            }), 400
-
+            return jsonify({"success": False, "message": "Missing topic"}), 400
         if not platform:
-            return jsonify({
-                "success": False,
-                "message": "Missing platform"
-            }), 400
+            return jsonify({"success": False, "message": "Missing platform"}), 400
 
         # Fetch brand guidelines
         brand_guidelines = "Modern, professional brand with clean aesthetics"
@@ -525,25 +570,16 @@ def create_content() -> tuple[Response, int]:
         try:
             conn = db_connection()
             cursor = conn.cursor()
-            cursor.execute("""
-                           SELECT content FROM brand_guidelines WHERE company_id = %s;
-                           """, (company_id,))
+            cursor.execute("SELECT content FROM brand_guidelines WHERE company_id = %s;", (company_id,))
             row = cursor.fetchone()
-
             if row and row[0]:
                 brand_guidelines = row[0].strip()
-
         finally:
             if cursor: cursor.close()
             if conn: conn.close()
             conn = cursor = None
 
-        # Run all AI calls
-        # TODO: Get img_path from user upload
-        img_path = "https://res.cloudinary.com/diwkfbsgv/image/upload/v1771697108/prompt_eng-08_rohulg.jpg"
-
-        image_analysis = analyze_image(img_path)
-
+        # Generate caption and prompt
         caption_data = generate_post_caption(
             brand_guidelines=brand_guidelines,
             post_topic=topic,
@@ -554,92 +590,32 @@ def create_content() -> tuple[Response, int]:
                 "success": False,
                 "message": f"Failed to generate caption: {caption_data.get('error', 'Unknown error')}"
             }), 500
+
         if not caption_data.get("caption"):
             return jsonify({"success": False, "message": "Caption generation returned an empty result"}), 500
 
         prompt = generate_post_image_prompt(
             brand_guidelines=brand_guidelines,
             caption_data=caption_data,
-            image_analysis=image_analysis
+            image_analysis=analyses
         )
-
-        image_url = generate_image(prompt, size="1024x1024")
 
         hashtags = caption_data.get("hashtags") or []
         caption = caption_data["caption"]
         if hashtags:
             caption = f"{caption}\n\n{' '.join(['#' + tag for tag in hashtags])}"
 
-        # -------------------------------------------------
-        # 3. Save uploaded reference images (no DB needed)
-        # -------------------------------------------------
-        uploaded_urls = []
-        images = request.files.getlist("referenceImages") or []
-        if images:
-            company_dir = UPLOADS_DIR / "reference-images" / str(company_id)
-            company_dir.mkdir(parents=True, exist_ok=True)
-            for f in images:
-                if not f or not f.filename:
-                    continue
-                filename = secure_filename(f.filename)
-                path = company_dir / filename
-                f.save(path)
-                uploaded_urls.append(f"/uploads/{path.relative_to(UPLOADS_DIR).as_posix()}")
-
-        # -------------------------------------------------
-        # 4. Persist results — open a fresh DB connection
-        # -------------------------------------------------
-        conn = cursor = None
-        try:
-            conn = db_connection()
-            cursor = conn.cursor()
-            cursor.execute(
-                """
-                INSERT INTO content_posts (company_id, topic, platform, reference_image_urls, prompt, caption)
-                VALUES (%s, %s, %s, %s::jsonb, %s, %s)
-                RETURNING id, company_id, topic, platform, reference_image_urls::text, prompt, caption, created_at, updated_at;
-                """,
-                (company_id, topic, platform, json.dumps(uploaded_urls), prompt, caption),
-            )
-            saved = cursor.fetchone()
-            conn.commit()
-        except Exception:
-            if conn: conn.rollback()
-            raise
-        finally:
-            if cursor: cursor.close()
-            if conn: conn.close()
-
-        # Check if row was returned
-        if not saved:
-            return jsonify({
-                "success": False,
-                "message": "Failed to return saved results",
-            }), 500
-
-        reference_urls = json.loads(saved[4] or "[]")
-
+        # Return to frontend for user review — not saved yet
         return jsonify({
-            "id": saved[0],
-            "imageUrl": image_url,
-            "companyId": saved[1],
-            "topic": saved[2],
-            "platform": saved[3],
-            "referenceImageUrls": reference_urls,
-            "prompt": saved[5] or "",
-            "caption": saved[6] or "",
-            "createdAt": saved[7].isoformat() if saved[7] else None,
-            "updatedAt": saved[8].isoformat() if saved[8] else None,
-        }), 201
+            "success": True,
+            "prompt": prompt,
+            "caption": caption,
+        }), 200
 
     except Exception as e:
         import traceback
         print(traceback.format_exc())
-        return jsonify({
-            "success": False,
-            "message": "Failed to create content",
-            "error": str(e)
-        }), 500
+        return jsonify({"success": False, "message": "Failed to create content", "error": str(e)}), 500
 
 
 @app.route("/api/content/latest", methods=["GET"])
