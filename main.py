@@ -259,40 +259,50 @@ def get_company(company_id) -> tuple[Response, int]:
 # BRAND GUIDELINES
 # =====================================================
 @app.route("/api/brand-guidelines/upload", methods=["POST"])
-def upload_brand_guidelines() -> Response:
+def upload_brand_guidelines() -> tuple[Response, int]:
     conn = cursor = None
 
     try:
+        # Check if file exists in incoming request
         if "file" not in request.files:
             return jsonify({
                 "success": False,
                 "message": "Missing file"
-            })
+            }), 400
 
+        # Get the file and company ID from request
         file = request.files["file"]
         company_id_raw = (request.form.get("companyId") or "").strip()
+
         if not company_id_raw.isdigit():
             return jsonify({
                 "success": False,
                 "message": "Invalid companyId"
-            })
+            }), 400
         company_id = int(company_id_raw)
 
+        # Check if file was selected
         if not file.filename:
             return jsonify({
                 "success": False,
                 "message": "Empty filename"
-            })
+            }), 400
 
+        # Save uploaded file to cloudinary
         filename = secure_filename(file.filename)
-        company_dir = UPLOADS_DIR / "brand-guidelines" / str(company_id)
-        company_dir.mkdir(parents=True, exist_ok=True)
-        path = company_dir / filename
-        file.save(path)
+        upload_result = cloudinary.uploader.upload(
+            file,
+            folder=f"uploaded-brand-guidelines/{company_id}",
+            public_id=filename.rsplit(".", 1)[0],
+            resource_type="auto"
+        )
+
+        file_url = upload_result["secure_url"]
 
         conn = db_connection()
         cursor = conn.cursor()
 
+        # Save uploaded file data to database
         cursor.execute(
             """
             INSERT INTO brand_guidelines (company_id, file_filename, file_path, uploaded_at)
@@ -303,17 +313,17 @@ def upload_brand_guidelines() -> Response:
                 file_path = EXCLUDED.file_path,
                 uploaded_at = EXCLUDED.uploaded_at;
             """,
-            (company_id, filename, str(path.relative_to(DATA_DIR))),
+            (company_id, filename, file_url),
         )
         conn.commit()
 
         return jsonify(
             {
                 "success": True,
-                "ok": True,
-                "fileUrl": f"/uploads/{path.relative_to(UPLOADS_DIR).as_posix()}",
+                "message": "Guidelines uploaded successfully",
+                "fileUrl": file_url,
             }
-        )
+        ), 201
 
     except Exception as e:
         if conn:
@@ -322,7 +332,7 @@ def upload_brand_guidelines() -> Response:
             "success": False,
             "message": "Failed to upload guidelines",
             "error": str(e)
-        })
+        }), 500
 
     finally:
         if cursor:
@@ -501,15 +511,18 @@ def get_brand_guidelines(company_id: int) -> tuple[Response, int]:
 # =====================================================
 # CONTENT
 # =====================================================
+# Save uploaded images to cloudinary
 @app.route("/api/content/upload_images", methods=["POST"])
 def upload_images() -> tuple[Response, int]:
     company_id = int((request.form.get("companyId") or "").strip())
 
+    # Get reference images
     ref_imgs = request.files.getlist("referenceImages")
      
     if not ref_imgs or all(not f.filename for f in ref_imgs):
         return jsonify({"success": False, "message": "No images provided"}), 400
 
+    # Iterate over each image uploading each
     uploaded_urls = []
     for f in ref_imgs:
         if not f or not f.filename:
@@ -527,15 +540,18 @@ def upload_images() -> tuple[Response, int]:
     }), 200
 
 
+#Analyze uploaded images
 @app.route("/api/content/analyze_images", methods=["POST"])
 def analyze_images_route() -> tuple[Response, int]:
+    # Get image data
     img_data = request.get_json(silent=True) or {}
     img_urls: list | None = img_data.get("urls") or []
 
     if not img_urls:
         return jsonify({"success": False, "message": "No image URLs provided"}), 400
 
-    img_analysis = analyze_images(img_urls)
+    # Analyze each image
+    img_analysis: dict = analyze_images(img_urls)
 
     return jsonify({
         "success": True,
@@ -544,9 +560,11 @@ def analyze_images_route() -> tuple[Response, int]:
     }), 200
 
 
+# Create new content
 @app.route("/api/content/create", methods=["POST"])
 def create_content() -> tuple[Response, int]:
     try:
+        # Get content data
         content_data = request.get_json(silent=True) or {}
         company_id = content_data.get("companyId")
         topic = (content_data.get("topic") or "").strip()
@@ -575,12 +593,14 @@ def create_content() -> tuple[Response, int]:
             if conn: conn.close()
             conn = cursor = None
 
-        # Generate caption and prompt
+        # Generate caption data
         caption_data = generate_post_caption(
             brand_guidelines=brand_guidelines,
             post_topic=topic,
             platform=platform
         )
+
+        # Check if caption was generated successfully
         if caption_data.get("success") is False:
             return jsonify({
                 "success": False,
@@ -590,12 +610,14 @@ def create_content() -> tuple[Response, int]:
         if not caption_data.get("caption"):
             return jsonify({"success": False, "message": "Caption generation returned an empty result"}), 500
 
+        # Generate prompt
         prompt = generate_post_image_prompt(
             brand_guidelines=brand_guidelines,
             caption_data=caption_data,
             image_analysis=analyses
         )
 
+        # Combine captions and hashtags from caption data
         hashtags = caption_data.get("hashtags") or []
         caption = caption_data["caption"]
         if hashtags:
@@ -614,6 +636,7 @@ def create_content() -> tuple[Response, int]:
         return jsonify({"success": False, "message": "Failed to create content", "error": str(e)}), 500
 
 
+# GET latest content
 @app.route("/api/content/latest", methods=["GET"])
 def latest_content() -> Response:
     conn = cursor = None
@@ -630,6 +653,7 @@ def latest_content() -> Response:
         conn = db_connection()
         cursor = conn.cursor()
 
+        # Get all content from selected company (Descending order)
         cursor.execute(
             """
             SELECT id, company_id, topic, platform, reference_image_urls::text, prompt, caption, created_at, updated_at
@@ -642,6 +666,7 @@ def latest_content() -> Response:
         )
         row = cursor.fetchone()
 
+        # Check if row was returned
         if not row:
             return jsonify(
                 {
@@ -690,13 +715,14 @@ def save_content() -> tuple[Response, int]:
     conn = cursor = None
 
     try:
-        payload = request.get_json(silent=True) or {}
-        company_id = payload.get("companyId")
-        topic = (payload.get("topic") or "").strip()
-        platform = (payload.get("platform") or "").strip()
-        prompt = (payload.get("prompt") or "").strip()
-        caption = (payload.get("caption") or "").strip()
-        reference_image_urls = payload.get("referenceImageUrls") or []
+        # Get content data to save
+        content_saving_data = request.get_json(silent=True) or {}
+        company_id = content_saving_data.get("companyId")
+        topic = (content_saving_data.get("topic") or "").strip()
+        platform = (content_saving_data.get("platform") or "").strip()
+        prompt = (content_saving_data.get("prompt") or "").strip()
+        caption = (content_saving_data.get("caption") or "").strip()
+        reference_image_urls = content_saving_data.get("referenceImageUrls") or []
 
         if not isinstance(company_id, int) or company_id <= 0:
             return jsonify({"success": False, "message": "Invalid companyId"}), 400
@@ -708,7 +734,7 @@ def save_content() -> tuple[Response, int]:
         # Generate the final image from the approved prompt
         image_url = generate_image(prompt, size="1024x1024")
 
-        # Save to DB
+        # Save to content data to database
         conn = db_connection()
         cursor = conn.cursor()
         cursor.execute(
