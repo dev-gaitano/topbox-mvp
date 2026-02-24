@@ -1,12 +1,11 @@
 from typing import Any
-from flask import Flask, Response, request, jsonify, send_from_directory
+from flask import Flask, Response, request, jsonify
 from flask_cors import CORS
 from databaseConnection import db_connection
 from werkzeug.utils import secure_filename
 from dotenv import load_dotenv
 import os
 import json
-from pathlib import Path
 import cloudinary
 import cloudinary.uploader
 
