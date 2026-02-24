@@ -9,7 +9,7 @@ import json
 import cloudinary
 import cloudinary.uploader
 
-from brandAgent import analyze_brand, generate_brand_guidelines
+from brandAgent import analyze_brand, analyze_uploaded_guidelines, generate_brand_guidelines
 from contentAgent import analyze_images, generate_post_caption, generate_post_image_prompt, generate_image
 
 # Load environment variables
@@ -283,8 +283,13 @@ def upload_brand_guidelines() -> tuple[Response, int]:
                 "message": "Empty filename"
             }), 400
 
-        # Save uploaded file to cloudinary
         filename = secure_filename(file.filename)
+        uploaded_analysis = analyze_uploaded_guidelines(file)
+
+        # Seek back to start of file
+        file.stream.seek(0)
+
+        # Save uploaded file to cloudinary
         upload_result = cloudinary.uploader.upload(
             file,
             folder=f"uploaded-brand-guidelines/{company_id}",
@@ -300,15 +305,16 @@ def upload_brand_guidelines() -> tuple[Response, int]:
         # Save uploaded file data to database
         cursor.execute(
             """
-            INSERT INTO brand_guidelines (company_id, file_filename, file_path, uploaded_at)
-            VALUES (%s, %s, %s, NOW())
+            INSERT INTO brand_guidelines (company_id, file_filename, file_path,
+                                          file_analysis, uploaded_at)
+            VALUES (%s, %s, %s, %s, NOW())
             ON CONFLICT (company_id)
             DO UPDATE SET
                 file_filename = EXCLUDED.file_filename,
                 file_path = EXCLUDED.file_path,
                 uploaded_at = EXCLUDED.uploaded_at;
             """,
-            (company_id, filename, file_url),
+            (company_id, filename, file_url, uploaded_analysis),
         )
         conn.commit()
 
@@ -361,7 +367,15 @@ def generate_guidelines() -> tuple[Response, int]:
                 "error": brand_profile.get("error", "Unknown error")
             }), 400
 
-        brand_guidelines = generate_brand_guidelines(brand_profile)
+        # Fetch uploaded file analysis if it exists
+        cursor.execute(
+            "SELECT file_analysis FROM brand_guidelines WHERE company_id = %s;",
+            (company_id,)
+        )
+        row = cursor.fetchone()
+        uploaded_analysis = json.loads(row[0]) if row and row[0] else None
+
+        brand_guidelines = generate_brand_guidelines(brand_profile, uploaded_analysis)
 
         # Insert generated guidelines into database
         cursor.execute(

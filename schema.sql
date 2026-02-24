@@ -24,6 +24,7 @@ CREATE TABLE IF NOT EXISTS brand_guidelines (
 	content TEXT,
 	file_filename TEXT,
 	file_path TEXT,
+	file_analysis JSONB,
 	uploaded_at TIMESTAMPTZ,
 	generated_at TIMESTAMPTZ,
 	saved_at TIMESTAMPTZ,
