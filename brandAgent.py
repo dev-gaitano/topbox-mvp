@@ -86,8 +86,8 @@ def generate_brand_guidelines(brand_profile: dict) -> str:
 ## Posting Style
 {brand_profile['posting_style']}"""
 
+        print(f"Brand profile: {brand_profile}")
         return guidelines
     except Exception as e:
         print(f"Error in generate_brand_guidelines: {str(e)}")
-        print(f"Brand profile: {brand_profile}")
         return f"Error generating guidelines: {str(e)}"
