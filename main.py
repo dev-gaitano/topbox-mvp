@@ -286,6 +286,13 @@ def upload_brand_guidelines() -> tuple[Response, int]:
         filename = secure_filename(file.filename)
         uploaded_analysis = analyze_uploaded_guidelines(file)
 
+        if uploaded_analysis.get("success") is False:
+            return jsonify({
+                "success": False,
+                "message": "Guidelines analysis failed",
+                "error": uploaded_analysis.get("error")
+            }), 400
+
         # Seek back to start of file
         file.stream.seek(0)
 
@@ -314,7 +321,7 @@ def upload_brand_guidelines() -> tuple[Response, int]:
                 file_path = EXCLUDED.file_path,
                 uploaded_at = EXCLUDED.uploaded_at;
             """,
-            (company_id, filename, file_url, uploaded_analysis),
+            (company_id, filename, file_url, json.dumps(uploaded_analysis)),
         )
         conn.commit()
 
