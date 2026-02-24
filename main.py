@@ -19,10 +19,6 @@ load_dotenv()
 # Define `app`
 app = Flask(__name__)
 
-# TODO: Remove `DATA_DIR`
-DATA_DIR = Path(__file__).resolve().parent / "data"
-UPLOADS_DIR = DATA_DIR / "uploads"
-
 # Setup CORS
 CORS(app, resources={
         r"/api/*": {
@@ -773,14 +769,6 @@ def save_content() -> tuple[Response, int]:
     finally:
         if cursor: cursor.close()
         if conn: conn.close()
-
-
-# =====================================================
-# UPLOADS
-# =====================================================
-@app.route("/uploads/<path:filename>", methods=["GET"])
-def serve_uploads(filename: str):
-    return send_from_directory(str(UPLOADS_DIR), filename)
 
 
 if __name__ == "__main__":

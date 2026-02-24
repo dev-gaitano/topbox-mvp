@@ -53,7 +53,9 @@ function BrandGuidelines({ companyId }: BrandGuidelinesProps) {
         alert('Brand guidelines uploaded successfully!');
         setUploadedFile(null);
       } else {
-        alert('Failed to upload brand guidelines');
+        const data = await response.json();
+        console.error('Upload error:', data);
+        alert(`Failed to upload: ${data.message} — ${data.error}`);
       }
     } catch (error) {
       console.error('Error uploading file:', error);
