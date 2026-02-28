@@ -780,9 +780,6 @@ def save_content() -> tuple[Response, int]:
         if not prompt:
             return jsonify({"success": False, "message": "Missing prompt"}), 400
 
-        # Generate the final image from the approved prompt
-        image_url = generate_image(prompt, size="1024x1024")
-
         # Save to content data to database
         conn = db_connection()
         cursor = conn.cursor()
@@ -808,7 +805,6 @@ def save_content() -> tuple[Response, int]:
             "referenceImageUrls": json.loads(saved[4] or "[]"),
             "prompt": saved[5] or "",
             "caption": saved[6] or "",
-            "imageUrl": image_url,
             "createdAt": saved[7].isoformat() if saved[7] else None,
             "updatedAt": saved[8].isoformat() if saved[8] else None,
         }), 201
