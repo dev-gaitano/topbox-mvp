@@ -6,6 +6,7 @@ from werkzeug.utils import secure_filename
 from dotenv import load_dotenv
 import os
 import json
+import traceback
 import cloudinary
 import cloudinary.uploader
 
@@ -140,6 +141,14 @@ def create_company() -> tuple[Response, int]:
             except ValueError:
                 pass
 
+        # Comma sperate competitor values
+        if main_competitors:
+            competitors_list = [
+                c.strip() for c in main_competitors.split(",") if c.strip()
+            ]
+        else:
+            competitors_list = []
+
         # Insert company to database
         cursor.execute(
             """
@@ -150,8 +159,8 @@ def create_company() -> tuple[Response, int]:
             RETURNING id, name, created_at;
             """,
             (name, industry, email, monthly_budget, description, target_audience,
-             unique_value, json.dumps([main_competitors] if main_competitors else []),
-             json.dumps(brand_personality), brand_tone),
+            unique_value, json.dumps(competitors_list), json.dumps(brand_personality),
+            brand_tone),
         )
         row = cursor.fetchone()
         conn.commit()
@@ -380,11 +389,11 @@ def generate_guidelines() -> tuple[Response, int]:
             (company_id,)
         )
         row = cursor.fetchone()
-        uploaded_analysis = json.loads(row[0]) if row and row[0] else None
+        uploaded_analysis = row[0] if row and row[0] else None
 
         brand_guidelines = generate_brand_guidelines(brand_profile, uploaded_analysis)
 
-        # Insert generated guidelines into database
+        # Insert generated guidelines into database (also store analysis JSON)
         cursor.execute(
             """
             INSERT INTO brand_guidelines (company_id, content, generated_at)
@@ -401,12 +410,14 @@ def generate_guidelines() -> tuple[Response, int]:
         return jsonify({
             "success": True,
             "message": "Guidelines generated successfully",
-            "content": brand_guidelines
+            "content": brand_guidelines,
+            "profile": brand_profile,
         }), 201
 
     except Exception as e:
         if conn:
             conn.rollback()
+        print(f"Failed to generate guidelines: {str(e)}")
         return jsonify({
             "success": False,
             "message": "Failed to generate guidelines",
@@ -489,9 +500,9 @@ def get_brand_guidelines(company_id: int) -> tuple[Response, int]:
         conn = db_connection()
         cursor = conn.cursor()
 
-        # Get brand guidelines for selected company
+        # Get brand guidelines and any stored analysis/profile for selected company
         cursor.execute(
-            "SELECT content FROM brand_guidelines WHERE company_id = %s;",
+            "SELECT content, file_analysis FROM brand_guidelines WHERE company_id = %s;",
             (company_id,),
         )
         row = cursor.fetchone()
@@ -501,13 +512,36 @@ def get_brand_guidelines(company_id: int) -> tuple[Response, int]:
             return jsonify({
                 "success": False,
                 "message": "Company guidelines/content not found",
-                "content": None
+                "content": None,
+                "profile": None
             }), 200
+
+        content = row[0]
+        file_analysis_raw = row[1]
+        profile = None
+
+        # Try to extract a structured profile from file_analysis if present
+        try:
+            if file_analysis_raw:
+                if isinstance(file_analysis_raw, str):
+                    fa = json.loads(file_analysis_raw)
+                else:
+                    fa = file_analysis_raw
+
+                # Prefer explicit generated_profile key
+                if isinstance(fa, dict) and fa.get("generated_profile"):
+                    profile = fa.get("generated_profile")
+                # If the stored analysis itself looks like a profile (has brand_voice), return it
+                elif isinstance(fa, dict) and fa.get("brand_voice"):
+                    profile = fa
+        except Exception:
+            profile = None
 
         return jsonify({
             "success": True,
             "message": "Company guidelines fetched successfully",
-            "content": row[0]
+            "content": content,
+            "profile": profile,
         }), 200
 
     except Exception as e:
@@ -647,7 +681,6 @@ def create_content() -> tuple[Response, int]:
         }), 200
 
     except Exception as e:
-        import traceback
         print(traceback.format_exc())
         return jsonify({"success": False, "message": "Failed to create content", "error": str(e)}), 500
 
@@ -747,9 +780,6 @@ def save_content() -> tuple[Response, int]:
         if not prompt:
             return jsonify({"success": False, "message": "Missing prompt"}), 400
 
-        # Generate the final image from the approved prompt
-        image_url = generate_image(prompt, size="1024x1024")
-
         # Save to content data to database
         conn = db_connection()
         cursor = conn.cursor()
@@ -775,14 +805,12 @@ def save_content() -> tuple[Response, int]:
             "referenceImageUrls": json.loads(saved[4] or "[]"),
             "prompt": saved[5] or "",
             "caption": saved[6] or "",
-            "imageUrl": image_url,
             "createdAt": saved[7].isoformat() if saved[7] else None,
             "updatedAt": saved[8].isoformat() if saved[8] else None,
         }), 201
 
     except Exception as e:
         if conn: conn.rollback()
-        import traceback
         print(traceback.format_exc())
         return jsonify({"success": False, "message": "Failed to save content", "error": str(e)}), 500
 
