@@ -1,64 +1,105 @@
-from typing import Any
 from dotenv import load_dotenv
-import os
 import json
-from openai import OpenAI
+from typing import Any, Optional
 from werkzeug.datastructures import FileStorage
 import pdfplumber
 import io
 
+from langchain_openai import ChatOpenAI
+from pydantic import BaseModel, Field
+from langchain_core.output_parsers import PydanticOutputParser
+from langchain.agents import create_agent
+
 
 # Setup environment files
 load_dotenv()
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
+# Define Model
+model = ChatOpenAI(
+    model="gpt-4o-mini",
+    temperature=0.7,
+    max_retries=2,
+)
+
+# Response format
+class BrandAnalysisResponseFormat(BaseModel):
+    brand_voice: list[str] = Field( description="3-5 adjectives that express the brand voice")
+    color_palette: list[str] = Field(
+        description="""5 hex colors that match the industry and vibe
+            (primary, secondary, accent, text, background)"""
+    )
+    typography: Optional[str] = Field(default=None, description="Typography description")
+    content_themes: list[str] = Field(description="5-10 relevant posting themes")
+    target_audience: str = Field(description="Target audience description")
+    posting_style: str = Field(description="Posting style description")
+    industry: Optional[str] = Field(default=None, description="Industry name")
+
+# Parse Response Format
+brand_analysis_res_parser = PydanticOutputParser(pydantic_object=BrandAnalysisResponseFormat)
+
+# Define Brand Analysis System Prompt
+BRAND_ANALYSIS_SYSTEM_PROMPT = """
+    You are a brand strategy expert.
+    Analyze the provided data and create a comprehensive brand profile.
+
+    Generate a structured brand profile with:
+    1. Brand Voice (3-5 adjectives, e.g., "professional, friendly, innovative")
+    2. Color Palette (5 hex colors that match the industry and vibe)
+    3. Typography (font style recommendation, e.g., "Modern sans-serif with clean lines")
+    4. Content Themes (5-10 topics they should post about)
+    5. Target Audience (brief description)
+    6. Posting Style (casual/professional/inspirational etc.)
+    7. Industry (the industry this brand operates in)
+
+    If any information is not explicitly mentioned, make a reasonable
+    inference based on the overall brand tone.
+"""
+
+GUIDELINE_MERGING_PROMPT = """
+    You are a brand strategy expert. You have two brand profiles for the same company:
+
+    Merge these into a single, superior brand profile that takes the best of both.
+    Favour the uploaded guidelines for factual details like colors and typography since
+    they come from an official document, but use the AI-generated profile to fill in
+    any gaps or enrich areas that are vague or missing.
+"""
+
+# Define tools
+brand_analysis_tools = []
+
+# Define Agents
+brand_analysis_agent = create_agent(
+   model, 
+   tools=brand_analysis_tools,
+   system_prompt=BRAND_ANALYSIS_SYSTEM_PROMPT,
+   response_format=BrandAnalysisResponseFormat,
+)
+
+guideline_merging_agent = create_agent(
+   model, 
+   tools=brand_analysis_tools,
+   system_prompt=GUIDELINE_MERGING_PROMPT,
+   response_format=BrandAnalysisResponseFormat,
+)
 
 
 # Analyze brand from questionnaire data
 def analyze_brand(questionnaire_data: dict) -> dict[str, Any]:
     try:
-        SYSTEM_PROMPT = f"""
-            You are a brand strategy expert.
-            Analyze this questionnaire and create a comprehensive brand profile.
+        # Invoke the agent
+        response = brand_analysis_agent.invoke({
+            "messages": [
+                {
+                    "role": "user",
+                    "content": f"Analyze this questionnaire data:\n{json.dumps(questionnaire_data, indent=2)}"
+                }
+            ]
+        })
 
-            Questionnaire Data:
-            {json.dumps(questionnaire_data, indent=2)}
-
-            Generate a structured brand profile with:
-            1. Brand Voice (3-5 adjectives, e.g., "professional, friendly, innovative")
-            2. Color Palette (5 hex colors that match the industry and vibe)
-            3. Content Themes (5 topics they should post about)
-            4. Target Audience (brief description)
-            5. Posting Style (casual/professional/inspirational etc.)
-
-            Return ONLY a valid JSON object with these exact keys:
-            {{
-                "brand_voice": ["adj1", "adj2", "adj3"],
-                "color_palette": ["#HEX1", "#HEX2", "#HEX3", "#HEX4", "#HEX5"],
-                "typography": "typography",
-                "content_themes": ["theme1", "theme2", "theme3", "theme4", "theme5"],
-                "target_audience": "description",
-                "posting_style": "style description",
-                "industry": "industry name"
-            }}
-        """
-
-        response = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[{
-                "role" : "user",
-                "content" : SYSTEM_PROMPT,
-                }],
-            temperature=0.7,
-            response_format={"type" : "json_object"}
-        )
-
-        content: str | None = response.choices[0].message.content
-
-        if content is None:
-            raise ValueError("Model returne empty content")
-
-        return json.loads(content)
+        # Return the required data
+        return response["structured_response"].model_dump()
     except Exception as e:
+        print(f"Error in analyze_brand(): {str(e)}")
         return { 
             "success" : False,
             "message" : "Error analyzing brand",
@@ -78,51 +119,20 @@ def analyze_uploaded_guidelines(uploaded_file: FileStorage) -> dict[str, Any]:
             for page in pdf.pages:
                 file_text += page.extract_text() or ""
 
-        
-        # Use AI to analyze the extracted text
-        SYSTEM_PROMPT = f"""
-            You are a brand strategy expert.
-            Analyze these brand guidelines and extract the key brand information.
-
-            Brand Guidelines Text:
-            {file_text}
-
-            Return ONLY a valid JSON object with these exact keys:
-            {{
-                "brand_voice": ["adj1", "adj2", "adj3"],
-                "color_palette": ["#HEX1", "#HEX2", "#HEX3", "#HEX4", "#HEX5"],
-                "typography": "typography",
-                "content_themes": ["theme1", "theme2", "theme3", "theme4", "theme5"],
-                "target_audience": "description",
-                "posting_style": "style description",
-                "industry": "industry name"
-            }}
-
-            If any information is not explicitly mentioned, make a reasonable
-            inference based on the overall brand tone.
-        """
-
-        response = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[
+        # Invoke the agent
+        response = brand_analysis_agent.invoke({
+            "messages": [
                 {
                     "role": "user",
-                    "content": SYSTEM_PROMPT
+                    "content": f"Analyze this data:\n{file_text}"
                 }
-            ],
-            temperature=0.3,
-            response_format={"type": "json_object"}
-        )
+            ]
+        })
 
-        # return the ai response
-        content: str | None = response.choices[0].message.content
-
-        if content is None:
-            raise ValueError("Model returne empty content")
-
-        return json.loads(content)
-
+        # Return the required data
+        return response["structured_response"].model_dump()
     except Exception as e:
+        print(f"Error in analyze_uploaded_guidelines(): {str(e)}")
         return {
             "success": False,
             "message": "Error analyzing uploaded guidelines",
@@ -133,42 +143,27 @@ def analyze_uploaded_guidelines(uploaded_file: FileStorage) -> dict[str, Any]:
 # Merge brand guidelines
 def merge_brand_profiles(generated_profile: dict, uploaded_analysis: dict) -> dict[str, Any]:
     try:
-        SYSTEM_PROMPT = f"""
-            You are a brand strategy expert. You have two brand profiles for the same company:
-            
-            1. AI-Generated Profile (based on a questionnaire):
-            {json.dumps(generated_profile, indent=2)}
+        # Invoke the agent
+        response = guideline_merging_agent.invoke({
+            "messages": [
+                {
+                    "role": "user",
+                    "content": f"""
+                        Here are the two brand profiles:
+                        1. AI-Generated Profile (based on a questionnaire):
+                        {json.dumps(generated_profile, indent=2)}
 
-            2. Uploaded Brand Guidelines Profile (extracted from their official document):
-            {json.dumps(uploaded_analysis, indent=2)}
+                        2. Uploaded Brand Guidelines Profile (extracted from their official document):
+                        {json.dumps(uploaded_analysis, indent=2)}
+                    """
+                }
+            ]
+        })
 
-            Merge these into a single, superior brand profile that takes the best of both.
-            Favour the uploaded guidelines for factual details like colors and typography since
-            they come from an official document, but use the AI-generated profile to fill in
-            any gaps or enrich areas that are vague or missing.
-
-            Return ONLY a valid JSON object with these exact keys:
-            {{
-                "brand_voice": ["adj1", "adj2", "adj3"],
-                "color_palette": ["#HEX1", "#HEX2", "#HEX3", "#HEX4", "#HEX5"],
-                "typography": "typography",
-                "content_themes": ["theme1", "theme2", "theme3", "theme4", "theme5"],
-                "target_audience": "description",
-                "posting_style": "style description",
-                "industry": "industry name"
-            }}
-        """
-
-        response = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[{"role": "user", "content": SYSTEM_PROMPT}],
-            temperature=0.3,
-            response_format={"type": "json_object"}
-        )
-
-        return json.loads(response.choices[0].message.content)
-
+        # Return the required data
+        return response["structured_response"].model_dump()
     except Exception as e:
+        print(f"Error in merge_brand_guidelines(): {str(e)}")
         return {
             "success": False,
             "message": "Error merging brand profiles",
@@ -215,8 +210,7 @@ def generate_brand_guidelines(brand_profile: dict, uploaded_analysis: dict | Non
 ## Posting Style
 {brand_profile['posting_style']}"""
 
-        print(f"Brand profile: {brand_profile}")
         return guidelines
     except Exception as e:
-        print(f"Error in generate_brand_guidelines: {str(e)}")
+        print(f"Error in generate_brand_guidelines(): {str(e)}")
         return f"Error generating guidelines: {str(e)}"
