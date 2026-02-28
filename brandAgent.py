@@ -5,21 +5,18 @@ from werkzeug.datastructures import FileStorage
 import pdfplumber
 import io
 
-from langchain_openai import ChatOpenAI
 from pydantic import BaseModel, Field
 from langchain_core.output_parsers import PydanticOutputParser
 from langchain.agents import create_agent
+
+from agentSetup import model, BRAND_ANALYSIS_PROMPT, GUIDELINE_MERGING_PROMPT
 
 
 # Setup environment files
 load_dotenv()
 
 # Define Model
-model = ChatOpenAI(
-    model="gpt-4o-mini",
-    temperature=0.7,
-    max_retries=2,
-)
+model = model
 
 # Response format
 class BrandAnalysisResponseFormat(BaseModel):
@@ -37,33 +34,6 @@ class BrandAnalysisResponseFormat(BaseModel):
 # Parse Response Format
 brand_analysis_res_parser = PydanticOutputParser(pydantic_object=BrandAnalysisResponseFormat)
 
-# Define Brand Analysis System Prompt
-BRAND_ANALYSIS_SYSTEM_PROMPT = """
-    You are a brand strategy expert.
-    Analyze the provided data and create a comprehensive brand profile.
-
-    Generate a structured brand profile with:
-    1. Brand Voice (3-5 adjectives, e.g., "professional, friendly, innovative")
-    2. Color Palette (5 hex colors that match the industry and vibe)
-    3. Typography (font style recommendation, e.g., "Modern sans-serif with clean lines")
-    4. Content Themes (5-10 topics they should post about)
-    5. Target Audience (brief description)
-    6. Posting Style (casual/professional/inspirational etc.)
-    7. Industry (the industry this brand operates in)
-
-    If any information is not explicitly mentioned, make a reasonable
-    inference based on the overall brand tone.
-"""
-
-GUIDELINE_MERGING_PROMPT = """
-    You are a brand strategy expert. You have two brand profiles for the same company:
-
-    Merge these into a single, superior brand profile that takes the best of both.
-    Favour the uploaded guidelines for factual details like colors and typography since
-    they come from an official document, but use the AI-generated profile to fill in
-    any gaps or enrich areas that are vague or missing.
-"""
-
 # Define tools
 brand_analysis_tools = []
 
@@ -71,7 +41,7 @@ brand_analysis_tools = []
 brand_analysis_agent = create_agent(
    model, 
    tools=brand_analysis_tools,
-   system_prompt=BRAND_ANALYSIS_SYSTEM_PROMPT,
+   system_prompt=BRAND_ANALYSIS_PROMPT,
    response_format=BrandAnalysisResponseFormat,
 )
 
