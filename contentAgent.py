@@ -3,18 +3,15 @@ from typing import Any
 import json
 
 from pydantic import BaseModel, Field
-from langchain_core.output_parsers import PydanticOutputParser
 from langchain.agents import create_agent
 from langchain_community.utilities.dalle_image_generator import DallEAPIWrapper
 
 from agentSetup import model, image_analysis_model, CAPTION_GEN_PROMPT, IMAGE_ANALYSIS_PROMPT, POST_IMAGE_PROMPT_GEN
+from responseModels import ImageAnalysisResponseFormat
 
 
 # Setup environment files
 load_dotenv()
-
-# Define Model
-model = model
 
 # Response format
 class CaptionResponseFormat(BaseModel):
@@ -27,9 +24,6 @@ class ImagePromptResponseFormat(BaseModel):
     post_topic: str = Field(description="Post topic of generated prompt")
     prompt: str = Field(description="Image generation prompt")
     aspect_ratio: str = Field(description="Aspect ration of the image to be generated")
-
-# Parse Response Format
-caption_res_parser = PydanticOutputParser(pydantic_object=CaptionResponseFormat)
 
 # Define models
 post_caption_gen_agent = create_agent(
@@ -94,7 +88,8 @@ def analyze_images(public_image_urls: list[str]) -> dict:
                 }
             })
 
-        response = image_analysis_model.invoke([
+        structured_model = image_analysis_model.with_structured_output(ImageAnalysisResponseFormat)
+        response = structured_model.invoke([
             {
                 "role": "user",
                 "content": content
@@ -102,9 +97,8 @@ def analyze_images(public_image_urls: list[str]) -> dict:
         ])
 
         # Return the required data
-        analysis_result = json.loads(str(response.content))
-        print(analysis_result)
-        return analysis_result
+        print(response.model_dump())
+        return response.model_dump()
     except Exception as e:
         print(f"Error analyzing images: {e}")
         return { 

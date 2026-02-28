@@ -6,7 +6,6 @@ import pdfplumber
 import io
 
 from pydantic import BaseModel, Field
-from langchain_core.output_parsers import PydanticOutputParser
 from langchain.agents import create_agent
 
 from agentSetup import model, BRAND_ANALYSIS_PROMPT, GUIDELINE_MERGING_PROMPT
@@ -14,9 +13,6 @@ from agentSetup import model, BRAND_ANALYSIS_PROMPT, GUIDELINE_MERGING_PROMPT
 
 # Setup environment files
 load_dotenv()
-
-# Define Model
-model = model
 
 # Response format
 class BrandAnalysisResponseFormat(BaseModel):
@@ -30,9 +26,6 @@ class BrandAnalysisResponseFormat(BaseModel):
     target_audience: str = Field(description="Target audience description")
     posting_style: str = Field(description="Posting style description")
     industry: Optional[str] = Field(default=None, description="Industry name")
-
-# Parse Response Format
-brand_analysis_res_parser = PydanticOutputParser(pydantic_object=BrandAnalysisResponseFormat)
 
 # Define tools
 brand_analysis_tools = []
