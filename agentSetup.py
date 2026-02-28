@@ -8,6 +8,13 @@ model = ChatOpenAI(
     max_retries=2,
 )
 
+image_analysis_model = ChatOpenAI(
+    model="gpt-4o-mini",
+    max_completion_tokens=4000,
+    temperature=0.3,
+    model_kwargs={"response_format": {"type": "json_object"}}
+)
+
 # BRAND AGENT PROMPTS
 BRAND_ANALYSIS_PROMPT = """
 You are a brand strategy expert.
