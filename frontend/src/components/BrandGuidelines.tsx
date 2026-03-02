@@ -206,7 +206,7 @@ function BrandGuidelines({ companyId }: BrandGuidelinesProps) {
         </div>
       ) : (
         <div className="bg-generate-section">
-          <form onSubmit={handleGenerate} className="generate-form">
+          <form onSubmit={handleGenerate} className="bg-generate-form">
             <div className="form-group">
               <p>
                 Click the button to auto-generate brand guidelines for this company.

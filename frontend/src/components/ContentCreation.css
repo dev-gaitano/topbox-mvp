@@ -27,12 +27,29 @@
 .cc-left {
   display: flex;
   flex-direction: column;
+  gap: 24px;
   margin-right: 16px;
 }
 
 .cc-field {
   display: flex;
   flex-direction: column;
+}
+
+.cc-platform-options {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+}
+
+.cc-platform-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--text-muted);
+  cursor: pointer;
 }
 
 .cc-input {
@@ -115,7 +132,7 @@
   font-family: var(--font-body);
   font-size: 14px;
   color: var(--text-secondary);
-  min-height: 220px;
+  min-height: 208px;
   display: flex;
   align-items: center;
   justify-content: center;

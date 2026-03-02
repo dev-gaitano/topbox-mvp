@@ -76,6 +76,13 @@
 }
 
 /* ── Generated Preview ── */
+.bg-generate-form {
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+  gap: 24px;
+}
+
 .bg-generated-content {
   margin-top: 32px;
   padding-top: 32px;

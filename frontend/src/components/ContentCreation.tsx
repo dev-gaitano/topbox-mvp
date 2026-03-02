@@ -9,25 +9,17 @@ interface ContentCreationProps {
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
 
-const PLATFORM_ICONS: Record<string, string> = {
-  instagram: '📸',
-  twitter: '🐦',
-  facebook: '📘',
-  linkedin: '💼',
-  tiktok: '🎵',
-};
-
 function ContentCreation({ companyId }: ContentCreationProps) {
   const navigate = useNavigate();
   const [topic, setTopic] = useState('');
-  const [platform, setPlatform] = useState<Platform>('instagram');
+  const [platforms, setPlatforms] = useState<Platform[]>(['instagram']);
   const [referenceImages, setReferenceImages] = useState<File[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [dragging, setDragging] = useState(false);
   const [status, setStatus] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const platforms: Platform[] = ['instagram', 'twitter', 'facebook', 'linkedin', 'tiktok'];
+  const platformOptions: Platform[] = ['instagram', 'twitter', 'facebook', 'linkedin', 'tiktok'];
 
   const addFiles = (files: File[]) => {
     const images = files.filter(f => f.type.startsWith('image/'));
@@ -59,7 +51,7 @@ function ContentCreation({ companyId }: ContentCreationProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!topic.trim()) return;
+    if (!topic.trim() || platforms.length === 0) return;
 
     try {
       setSubmitting(true);
@@ -95,7 +87,8 @@ function ContentCreation({ companyId }: ContentCreationProps) {
         body: JSON.stringify({
           companyId,
           topic: topic.trim(),
-          platform,
+          platform: platforms[0],
+          platforms,
           analyses: analyzeData.analyses,
         }),
       });
@@ -109,7 +102,8 @@ function ContentCreation({ companyId }: ContentCreationProps) {
       sessionStorage.setItem('pendingContent', JSON.stringify({
         ...createData,
         topic,
-        platform,
+        platform: platforms[0],
+        platforms,
         referenceImageUrls: uploadData.urls,
       }));
       navigate('/content/review');
@@ -144,19 +138,31 @@ function ContentCreation({ companyId }: ContentCreationProps) {
           </div>
 
           <div className="cc-field form-group">
-            <label htmlFor="platform">Select Platform</label>
-            <select
-              className="cc-input cc-select"
-              value={platform}
-              onChange={e => setPlatform(e.target.value as Platform)}
-              disabled={submitting}
-            >
-              {platforms.map(p => (
-                <option key={p} value={p}>
-                  {PLATFORM_ICONS[p]} {p.charAt(0).toUpperCase() + p.slice(1)}
-                </option>
-              ))}
-            </select>
+            <label>Select Platforms</label>
+            <div className="cc-platform-options">
+              {platformOptions.map(p => {
+                const checked = platforms.includes(p);
+                return (
+                  <label key={p} className="cc-platform-option">
+                    <input
+                      className="cc-checkbox"
+                      type="checkbox"
+                      value={p}
+                      checked={checked}
+                      disabled={submitting}
+                      onChange={e => {
+                        setPlatforms(prev =>
+                          e.target.checked
+                            ? [...prev, p]
+                            : prev.filter(pl => pl !== p)
+                        );
+                      }}
+                    />{' '}
+                    {p.charAt(0).toUpperCase() + p.slice(1)}
+                  </label>
+                );
+              })}
+            </div>
           </div>
 
           <button
