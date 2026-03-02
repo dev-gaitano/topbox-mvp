@@ -27,8 +27,8 @@ function CompanySelection({ selectedCompany, onSelectCompany }: CompanySelection
         const data = await response.json();
         setCompanies(data);
       } else {
-        console.log(response)
         console.error('Failed to fetch companies');
+        console.log(response)
       }
     } catch (error) {
       console.error('Error fetching companies:', error);
@@ -38,8 +38,8 @@ function CompanySelection({ selectedCompany, onSelectCompany }: CompanySelection
   };
 
   return (
-    <div className="company-selection">
-      <div className="company-selection-header">
+    <div className="cs-wrapper">
+      <div className="cs-header">
         <h1>Select Company</h1>
         <button
           className="btn btn-primary"
@@ -56,17 +56,17 @@ function CompanySelection({ selectedCompany, onSelectCompany }: CompanySelection
           <p>No companies found. Create your first company to get started.</p>
         </div>
       ) : (
-        <div className="company-list">
+        <div className="cs-list">
           {companies.map((company) => (
             <div
               key={company.id}
-              className={`company-card ${selectedCompany?.id === company.id ? "selected" : ""}`}
+              className={`cs-card ${selectedCompany?.id === company.id ? "selected" : ""}`}
               onClick={() => onSelectCompany(company)}
             >
               <h3>{company.name}</h3>
               <h4>{company.industry}</h4>
               {company.createdAt && (
-                <p className="company-date">
+                <p className="cs-date">
                   Created: {new Date(company.createdAt).toLocaleDateString()}
                 </p>
               )}

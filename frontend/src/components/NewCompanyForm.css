@@ -47,7 +47,7 @@
 
 /* ── Card ── */
 .ncf-card {
-  background: #F9F5EF;
+  background: hsl(36, 45%, 96%);
   border-radius: 20px;
   width: 100%;
   max-width: 560px;
@@ -58,17 +58,9 @@
 
 /* ── Header ── */
 .ncf-header {
-  background: linear-gradient(135deg, #1A1410, #3D2B10);
+  background: linear-gradient(135deg, hsl(24, 24%, 8%), hsl(36, 58%, 15%));
   padding: 36px 40px 28px;
-  color: #F9F5EF;
-}
-
-.ncf-logo {
-  font-size: 20px;
-  font-weight: 600;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: #C8A96E;
+  color: hsl(36, 45%, 96%);
 }
 
 .ncf-title {
@@ -76,13 +68,13 @@
   font-size: 32px;
   font-weight: 400;
   margin: 0 0 8px;
-  color: #F9F5EF;
+  color: hsl(36, 45%, 96%);
   line-height: 1.2;
 }
 
 .ncf-subtitle {
   font-size: 14px;
-  color: #BFB09A;
+  color: hsl(36, 22%, 68%);
   margin: 0;
   line-height: 1.6;
 }
@@ -92,8 +84,8 @@
   display: flex;
   align-items: center;
   padding: 20px 40px;
-  background: #F1EAE0;
-  border-bottom: 1px solid #E2D8CC;
+  background: hsl(35, 38%, 91%);
+  border-bottom: 1px solid hsl(33, 27%, 84%);
   gap: 0;
 }
 
@@ -108,50 +100,50 @@
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  background: #D4C9B8;
-  color: #8A7A69;
+  background: hsl(36, 25%, 78%);
+  color: hsl(31, 14%, 48%);
   font-size: 12px;
   font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
 }
 
 .ncf-step-dot.active {
-  background: #C8A96E;
-  color: #1A1410;
-  box-shadow: 0 0 0 3px rgba(200, 169, 110, 0.25);
+  background: var(--gold);
+  color: hsl(24, 24%, 8%);
+  box-shadow: 0 0 0 3px var(--gold-subtle);
 }
 
 .ncf-step-dot.done {
-  background: #3D2B10;
-  color: #C8A96E;
+  background: hsl(36, 58%, 15%);
+  color: var(--gold);
 }
 
 .ncf-step-label {
   font-size: 11px;
-  color: #9A8E7E;
+  color: hsl(34, 12%, 55%);
   font-weight: 500;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.5px;
   white-space: nowrap;
 }
 
 .ncf-step-label.active {
-  color: #3D2B10;
+  color: hsl(36, 58%, 15%);
   font-weight: 600;
 }
 
 .ncf-step-line {
   flex: 1;
   height: 1px;
-  background: #D4C9B8;
+  background: hsl(36, 25%, 78%);
   margin: 0 8px;
 }
 
 .ncf-step-line.done {
-  background: #3D2B10;
+  background: hsl(36, 58%, 15%);
 }
 
 /* ── Body ── */
@@ -173,18 +165,18 @@
   display: block;
   font-size: 13px;
   font-weight: 600;
-  color: #2C1F0F;
+  color: hsl(33, 49%, 12%);
   margin-bottom: 4px;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.5px;
 }
 
 .ncf-required {
-  color: #C8A96E;
+  color: var(--gold);
 }
 
 .ncf-hint {
   font-size: 12px;
-  color: #9A8E7E;
+  color: hsl(34, 12%, 55%);
   margin: 0 0 8px;
 }
 
@@ -195,25 +187,25 @@
   width: 100%;
   padding: 11px 14px;
   border-radius: 10px;
-  border: 1.5px solid #D4C9B8;
-  background: #ffffff;
+  border: 1.5px solid hsl(36, 25%, 78%);
+  background: hsl(0, 0%, 100%);
   font-size: 14px;
-  color: #1A1410;
+  color: hsl(24, 24%, 8%);
   font-family: 'DM Sans', sans-serif;
   transition: border 0.15s, box-shadow 0.15s;
 }
 
 .ncf-input::placeholder,
 .ncf-textarea::placeholder {
-  color: #9A8E7E;
+  color: hsl(34, 12%, 55%);
 }
 
 .ncf-input:focus,
 .ncf-textarea:focus,
 .ncf-select:focus {
   outline: none;
-  border-color: #C8A96E;
-  box-shadow: 0 0 0 3px rgba(200, 169, 110, 0.15);
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px var(--gold-subtle);
 }
 
 .ncf-textarea {
@@ -236,10 +228,10 @@
 .ncf-chip {
   padding: 8px 16px;
   border-radius: 999px;
-  border: 1.5px solid #D4C9B8;
-  background: #ffffff;
+  border: 1.5px solid hsl(36, 25%, 78%);
+  background: hsl(0, 0%, 100%);
   font-size: 13px;
-  color: #5A4A3A;
+  color: hsl(30, 22%, 29%);
   cursor: pointer;
   font-family: 'DM Sans', sans-serif;
   font-weight: 500;
@@ -247,9 +239,9 @@
 }
 
 .ncf-chip.active {
-  background: #3D2B10;
-  border-color: #3D2B10;
-  color: #C8A96E;
+  background: hsl(36, 58%, 15%);
+  border-color: hsl(36, 58%, 15%);
+  color: var(--gold);
 }
 
 /* ── Platform Cards ── */
@@ -265,22 +257,22 @@
   gap: 10px;
   padding: 12px 16px;
   border-radius: 12px;
-  border: 1.5px solid #D4C9B8;
-  background: #ffffff;
+  border: 1.5px solid hsl(36, 25%, 78%);
+  background: hsl(0, 0%, 100%);
   cursor: pointer;
   font-family: 'DM Sans', sans-serif;
   font-size: 13px;
   font-weight: 500;
-  color: #3D2B10;
+  color: hsl(36, 58%, 15%);
   position: relative;
   transition: all 0.15s ease;
   text-align: left;
 }
 
 .ncf-platform-card.active {
-  background: #3D2B10;
-  border-color: #3D2B10;
-  color: #C8A96E;
+  background: hsl(36, 58%, 15%);
+  border-color: hsl(36, 58%, 15%);
+  color: var(--gold);
 }
 
 .ncf-platform-icon {
@@ -294,7 +286,7 @@
 
 .ncf-platform-check {
   font-size: 12px;
-  color: #C8A96E;
+  color: var(--gold);
   font-weight: 700;
 }
 
@@ -315,13 +307,13 @@
   padding: 12px 28px;
   border-radius: 10px;
   border: none;
-  background: linear-gradient(135deg, #3D2B10, #5A3F1A);
-  color: #C8A96E;
+  background: linear-gradient(135deg, hsl(36, 58%, 15%), hsl(35, 55%, 23%));
+  color: var(--gold);
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
   font-family: 'DM Sans', sans-serif;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.5px;
   transition: all 0.15s ease;
   display: flex;
   align-items: center;
@@ -336,9 +328,9 @@
 .ncf-btn-secondary {
   padding: 12px 20px;
   border-radius: 10px;
-  border: 1.5px solid #D4C9B8;
+  border: 1.5px solid hsl(36, 25%, 78%);
   background: transparent;
-  color: #5A4A3A;
+  color: hsl(30, 22%, 29%);
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
@@ -355,8 +347,8 @@
 .ncf-spinner {
   width: 14px;
   height: 14px;
-  border: 2px solid rgba(200, 169, 110, 0.3);
-  border-top-color: #C8A96E;
+  border: 2px solid hsl(39 45% 61% / 0.3);
+  border-top-color: var(--gold);
   border-radius: 50%;
   display: inline-block;
   animation: spin 0.7s linear infinite;
@@ -372,7 +364,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  animation: fadeIn 0.2s ease both;
+  animation: fadeIn 0.3s ease both;
 }
 
 .ncf-notification-icon {
@@ -389,38 +381,38 @@
 
 /* Error */
 .ncf-card .ncf-notification--error {
-  background: #FEF2F2 !important;
-  border: 1.5px solid #FECACA !important;
-  color: #B91C1C !important;
+  background: var(--danger-bg) !important;
+  border: 1.5px solid var(--danger-border) !important;
+  color: var(--danger-color) !important;
 }
 
 .ncf-card .ncf-notification--error .ncf-notification-icon {
-  background: #FCA5A5 !important;
-  color: #7F1D1D !important;
+  background: hsl(0, 94%, 82%) !important;
+  color: hsl(0, 63%, 31%) !important;
 }
 
 /* Warning */
 .ncf-card .ncf-notification--warning {
-  background: #FFFBEB !important;
-  border: 1.5px solid #FDE68A !important;
-  color: #92400E !important;
+  background: hsl(48, 100%, 96%) !important;
+  border: 1.5px solid hsl(48, 97%, 77%) !important;
+  color: hsl(23, 82%, 31%) !important;
 }
 
 .ncf-card .ncf-notification--warning .ncf-notification-icon {
-  background: #FCD34D !important;
-  color: #78350F !important;
+  background: hsl(46, 97%, 65%) !important;
+  color: hsl(22, 78%, 26%) !important;
 }
 
 /* Success */
 .ncf-card .ncf-notification--success {
-  background: #F0FDF4 !important;
-  border: 1.5px solid #86EFAC !important;
-  color: #166534 !important;
+  background: hsl(138, 76%, 97%) !important;
+  border: 1.5px solid hsl(142, 77%, 73%) !important;
+  color: hsl(143, 64%, 24%) !important;
 }
 
 .ncf-card .ncf-notification--success .ncf-notification-icon {
-  background: #4ADE80 !important;
-  color: #14532D !important;
+  background: hsl(142, 69%, 58%) !important;
+  color: hsl(144, 61%, 20%) !important;
 }
 
 /* ── Success ── */
@@ -431,7 +423,7 @@
 
 .ncf-success-icon {
   font-size: 48px;
-  color: #C8A96E;
+  color: var(--gold);
   margin-bottom: 20px;
   font-family: serif;
 }
@@ -439,13 +431,13 @@
 .ncf-success-title {
   font-family: 'DM Serif Display', serif;
   font-size: 28px;
-  color: #1A1410;
+  color: hsl(24, 24%, 8%);
   margin: 0 0 12px;
 }
 
 .ncf-success-sub {
   font-size: 14px;
-  color: #7A6A5A;
+  color: hsl(30, 22%, 29%);
   line-height: 1.7;
   margin: 0 0 28px;
 }

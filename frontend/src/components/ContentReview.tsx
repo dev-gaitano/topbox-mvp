@@ -89,33 +89,33 @@ function ContentReview({ companyId }: ContentReviewProps) {
 
   if (!contentData) {
     return (
-      <div className="content-review">
+      <div className="cr-wrapper">
         <div className="loading">Loading content...</div>
       </div>
     );
   }
 
   return (
-    <div className="content-review">
+    <div className="cr-wrapper">
       <h1>Review Generated Content</h1>
 
-      <div className="review-section">
-        <div className="content-info">
-          <div className="info-item">
-            <span className="info-label">Topic:</span>
-            <span className="info-value">{contentData.topic}</span>
+      <div className="cr-review-section">
+        <div className="cr-content-info">
+          <div className="cr-info-item">
+            <span className="cr-info-label">Topic:</span>
+            <span className="cr-info-value">{contentData.topic}</span>
           </div>
-          <div className="info-item">
-            <span className="info-label">Platform:</span>
-            <span className="info-value">
+          <div className="cr-info-item">
+            <span className="cr-info-label">Platform:</span>
+            <span className="cr-info-value">
               {contentData.platform.charAt(0).toUpperCase() + contentData.platform.slice(1)}
             </span>
           </div>
         </div>
 
-        <div className="content-editor">
-          <div className="editor-section">
-            <div className="editor-header">
+        <div className="cr-content-editor">
+          <div className="cr-editor-section">
+            <div className="cr-editor-header">
               <h3>Content Prompt</h3>
               <button
                 className="btn btn-secondary btn-small"
@@ -128,19 +128,19 @@ function ContentReview({ companyId }: ContentReviewProps) {
               <textarea
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
-                className="editor-textarea"
+                className="cr-editor-textarea"
                 rows={8}
                 placeholder="Enter content prompt..."
               />
             ) : (
-              <div className="content-display" style={{ whiteSpace: 'pre-wrap', backgroundColor: '#f9f9f9', padding: '12px', borderRadius: '4px', minHeight: '100px', lineHeight: '1.6' }}>
-                {prompt || <span className="placeholder">No prompt generated</span>}
+              <div className="cr-content-display" style={{ whiteSpace: 'pre-wrap', backgroundColor: '#f9f9f9', padding: '12px', borderRadius: '4px', minHeight: '100px', lineHeight: '1.6' }}>
+                {prompt || <span className="cr-placeholder">No prompt generated</span>}
               </div>
             )}
           </div>
 
-          <div className="editor-section">
-            <div className="editor-header">
+          <div className="cr-editor-section">
+            <div className="cr-editor-header">
               <h3>Caption</h3>
               <button
                 className="btn btn-secondary btn-small"
@@ -153,19 +153,19 @@ function ContentReview({ companyId }: ContentReviewProps) {
               <textarea
                 value={caption}
                 onChange={(e) => setCaption(e.target.value)}
-                className="editor-textarea"
+                className="cr-editor-textarea"
                 rows={6}
                 placeholder="Enter caption..."
               />
             ) : (
-              <div className="content-display" style={{ whiteSpace: 'pre-wrap', backgroundColor: '#f9f9f9', padding: '12px', borderRadius: '4px', minHeight: '80px', lineHeight: '1.6' }}>
-                {caption || <span className="placeholder">No caption generated</span>}
+              <div className="cr-content-display" style={{ whiteSpace: 'pre-wrap', backgroundColor: '#f9f9f9', padding: '12px', borderRadius: '4px', minHeight: '80px', lineHeight: '1.6' }}>
+                {caption || <span className="cr-placeholder">No caption generated</span>}
               </div>
             )}
           </div>
         </div>
 
-        <div className="action-buttons">
+        <div className="cr-action-buttons">
           <button
             className="btn btn-secondary"
             onClick={() => navigate('/content')}

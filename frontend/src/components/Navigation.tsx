@@ -14,9 +14,9 @@ function Navigation({ selectedCompany }: NavigationProps) {
   };
 
   return (
-    <nav className="navigation">
+    <nav className="nav-wrapper">
       <div className="nav-container">
-        <Link to="/" className="nav-logo ncf-logo">
+        <Link to="/" className="nav-logo nav-logo">
           TopBox
         </Link>
         {selectedCompany && (

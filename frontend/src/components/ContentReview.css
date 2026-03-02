@@ -1,86 +1,86 @@
-.content-review {
+.cr-wrapper {
   width: 100%;
   animation: fadeIn 0.3s ease both;
 }
 
-.content-review h1 {
+.cr-wrapper h1 {
   font-family: var(--font-display);
-  font-size: 2.25rem;
+  font-size: 36px;
   font-weight: 400;
-  margin: 0 0 2rem;
+  margin: 0 0 32px;
 }
 
 /* ── Review Card ── */
-.review-section {
+.cr-review-section {
   background: var(--surface);
-  padding: 2rem;
+  padding: 32px;
   border-radius: var(--radius-lg);
   border: 1.5px solid var(--cream-300);
   box-shadow: var(--shadow);
 }
 
 /* ── Meta Info Strip ── */
-.content-info {
+.cr-content-info {
   display: flex;
-  gap: 2rem;
-  margin-bottom: 2rem;
-  padding: 1rem 1.25rem;
+  gap: 32px;
+  margin-bottom: 32px;
+  padding: 16px 20px;
   background: var(--cream-200);
   border-radius: var(--radius-sm);
   border: 1px solid var(--cream-300);
 }
 
-.info-item {
+.cr-info-item {
   display: flex;
   flex-direction: column;
   gap: 2px;
 }
 
-.info-label {
+.cr-info-label {
   font-size: 11px;
   font-weight: 600;
-  letter-spacing: 0.08em;
+  letter-spacing: 1.5px;
   text-transform: uppercase;
   color: var(--text-muted);
 }
 
-.info-value {
+.cr-info-value {
   font-size: 15px;
   font-weight: 600;
   color: var(--text-primary);
 }
 
 /* ── Editor Sections ── */
-.content-editor {
+.cr-content-editor {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 24px;
 }
 
-.editor-section {
+.cr-editor-section {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 12px;
 }
 
-.editor-header {
+.cr-editor-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-.editor-header h3 {
+.cr-editor-header h3 {
   font-family: var(--font-display);
-  font-size: 1.1rem;
+  font-size: 17.5px;
   font-weight: 400;
   color: var(--text-primary);
   margin: 0;
 }
 
 /* ── Display / Edit ── */
-.content-display {
+.cr-content-display {
   background: var(--cream-200);
-  padding: 1rem 1.25rem;
+  padding: 16px 20px;
   border-radius: var(--radius-sm);
   border: 1.5px solid var(--cream-300);
   min-height: 90px;
@@ -91,17 +91,17 @@
   color: var(--text-primary);
 }
 
-.placeholder {
+.cr-placeholder {
   color: var(--text-muted);
   font-style: italic;
 }
 
-.editor-textarea {
+.cr-editor-textarea {
   width: 100%;
-  padding: 1rem 1.25rem;
+  padding: 16px 20px;
   border-radius: var(--radius-sm);
   border: 1.5px solid var(--cream-400);
-  background: #ffffff;
+  background: hsl(0, 0%, 100%);
   font-family: var(--font-body);
   font-size: 14px;
   line-height: 1.7;
@@ -110,38 +110,38 @@
   transition: border 0.15s, box-shadow 0.15s;
 }
 
-.editor-textarea:focus {
+.cr-editor-textarea:focus {
   outline: none;
   border-color: var(--gold);
-  box-shadow: 0 0 0 3px var(--gold-dim);
+  box-shadow: 0 0 0 3px var(--gold-subtle);
 }
 
-.editor-textarea::placeholder {
+.cr-editor-textarea::placeholder {
   color: var(--text-muted);
 }
 
 /* ── Actions ── */
-.action-buttons {
+.cr-action-buttons {
   display: flex;
-  gap: 0.75rem;
+  gap: 12px;
   justify-content: flex-end;
-  margin-top: 2rem;
-  padding-top: 1.5rem;
+  margin-top: 32px;
+  padding-top: 24px;
   border-top: 1px solid var(--cream-300);
 }
 
 /* ── Responsive ── */
 @media (max-width: 768px) {
-  .content-info {
+  .cr-content-info {
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 12px;
   }
 
-  .action-buttons {
+  .cr-action-buttons {
     flex-direction: column;
   }
 
-  .action-buttons .btn {
+  .cr-action-buttons .btn {
     width: 100%;
     justify-content: center;
   }

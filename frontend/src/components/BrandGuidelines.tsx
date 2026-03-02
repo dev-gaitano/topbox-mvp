@@ -126,24 +126,24 @@ function BrandGuidelines({ companyId }: BrandGuidelinesProps) {
   };
 
   return (
-    <div className="brand-guidelines">
+    <div className="bg-wrapper">
       <h1>Brand Guidelines</h1>
 
-      <div className="mode-selector">
+      <div className="bg-mode-selector">
         <button
-          className={`mode-btn ${uploadMode === 'upload' ? 'active' : ''}`}
+          className={`bg-mode-btn ${uploadMode === 'upload' ? 'active' : ''}`}
           onClick={() => setUploadMode('upload')}
         >
           Upload Guidelines
         </button>
         <button
-          className={`mode-btn ${uploadMode === 'generate' ? 'active' : ''}`}
+          className={`bg-mode-btn ${uploadMode === 'generate' ? 'active' : ''}`}
           onClick={() => setUploadMode('generate')}
         >
           Generate Guidelines
         </button>
         <button
-          className={`mode-btn ${uploadMode === 'view' ? 'active' : ''}`}
+          className={`bg-mode-btn ${uploadMode === 'view' ? 'active' : ''}`}
           onClick={handleViewMode}
         >
           View Guidelines
@@ -151,11 +151,11 @@ function BrandGuidelines({ companyId }: BrandGuidelinesProps) {
       </div>
 
       {uploadMode === 'upload' ? (
-        <div className="upload-section">
+        <div className="bg-upload-section">
           <form onSubmit={handleUpload} className="upload-form">
             <div className="form-group">
               <label htmlFor="fileUpload">Upload Brand Guidelines File</label>
-              <div className="upload-row">
+              <div className="bg-upload-row">
                 <input
                   id="fileUpload"
                   type="file"
@@ -172,25 +172,40 @@ function BrandGuidelines({ companyId }: BrandGuidelinesProps) {
                 </button>
               </div>
               {uploadedFile && (
-                <p className="file-info">Selected: {uploadedFile.name}</p>
+                <p className="bg-file-info">Selected: {uploadedFile.name}</p>
               )}
             </div>
           </form>
         </div>
       ) : uploadMode === 'view' ? (
-        <div className="view-section">
+        <div className="bg-view-section">
           {viewedContent === undefined ? (
             <p>Loading...</p>
           ) : viewedContent === null ? (
             <p>No brand guidelines have been saved for this company yet.</p>
           ) : (
-            <div className="content-preview" style={{ whiteSpace: 'pre-wrap', backgroundColor: '#f5f5f5', padding: '16px', borderRadius: '4px', maxHeight: '500px', overflowY: 'auto', fontFamily: 'monospace', fontSize: '14px', lineHeight: '1.6' }}>
-              {viewedContent}
+            <div>
+              <div className="bg-content-preview" style={{ whiteSpace: 'pre-wrap', backgroundColor: '#f5f5f5', padding: '16px', borderRadius: '4px', maxHeight: '500px', overflowY: 'auto', fontFamily: 'monospace', fontSize: '14px', lineHeight: '1.6' }}>
+                {viewedContent}
+              </div>
+              {viewedProfile && Array.isArray(viewedProfile.color_palette) && (
+                <div style={{ marginTop: 12 }}>
+                  <h4>Color Palette</h4>
+                  <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                    {viewedProfile.color_palette.map((hex: string, i: number) => (
+                      <div key={i} style={{ textAlign: 'center' }}>
+                        <div style={{ width: 48, height: 48, backgroundColor: hex, borderRadius: 4, border: '1px solid #ddd' }} />
+                        <div style={{ fontSize: 12, marginTop: 6 }}>{hex}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>
       ) : (
-        <div className="generate-section">
+        <div className="bg-generate-section">
           <form onSubmit={handleGenerate} className="generate-form">
             <div className="form-group">
               <p>
@@ -207,9 +222,9 @@ function BrandGuidelines({ companyId }: BrandGuidelinesProps) {
           </form>
 
           {generatedContent && (
-            <div className="generated-content">
+            <div className="bg-generated-content">
               <h3>Generated Brand Guidelines</h3>
-              <div className="content-preview" style={{ whiteSpace: 'pre-wrap', backgroundColor: '#f5f5f5', padding: '16px', borderRadius: '4px', maxHeight: '500px', overflowY: 'auto', fontFamily: 'monospace', fontSize: '14px', lineHeight: '1.6' }}>
+              <div className="bg-content-preview" style={{ whiteSpace: 'pre-wrap', backgroundColor: '#f5f5f5', padding: '16px', borderRadius: '4px', maxHeight: '500px', overflowY: 'auto', fontFamily: 'monospace', fontSize: '14px', lineHeight: '1.6' }}>
                 {generatedContent}
               </div>
               <button
