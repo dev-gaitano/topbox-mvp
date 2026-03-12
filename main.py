@@ -621,15 +621,21 @@ def create_content() -> tuple[Response, int]:
         content_data = request.get_json(silent=True) or {}
         company_id = content_data.get("companyId")
         topic = (content_data.get("topic") or "").strip()
-        platform = (content_data.get("platform") or "").strip()
+        # Accept a list of platforms; fall back to the legacy single-platform field
+        platforms: list[str] = content_data.get("platforms") or []
+        if not platforms:
+            single = (content_data.get("platform") or "").strip()
+            if single:
+                platforms = [single]
+        platforms = [p.strip() for p in platforms if p.strip()]
         analyses = content_data.get("analyses") or []
 
         if not isinstance(company_id, int) or company_id <= 0:
             return jsonify({"success": False, "message": "Invalid companyId"}), 400
         if not topic:
             return jsonify({"success": False, "message": "Missing topic"}), 400
-        if not platform:
-            return jsonify({"success": False, "message": "Missing platform"}), 400
+        if not platforms:
+            return jsonify({"success": False, "message": "Missing platform(s)"}), 400
 
         # Fetch brand guidelines
         brand_guidelines = "Modern, professional brand with clean aesthetics"
@@ -646,42 +652,42 @@ def create_content() -> tuple[Response, int]:
             if conn: conn.close()
             conn = cursor = None
 
-        # Generate caption data
-        caption_data = generate_post_caption(
-            brand_guidelines=brand_guidelines,
-            post_topic=topic,
-            platform=platform,
-            image_analysis=analyses,
-        )
+        # Generate a caption + prompt for every selected platform
+        results: list[dict] = []
+        for platform in platforms:
+            caption_data = generate_post_caption(
+                brand_guidelines=brand_guidelines,
+                post_topic=topic,
+                platform=platform,
+                image_analysis=analyses,
+            )
 
-        # Check if caption was generated successfully
-        if caption_data.get("success") is False:
-            return jsonify({
-                "success": False,
-                "message": f"Failed to generate caption: {caption_data.get('error', 'Unknown error')}"
-            }), 500
+            if caption_data.get("success") is False:
+                return jsonify({
+                    "success": False,
+                    "message": f"Failed to generate caption for {platform}: {caption_data.get('error', 'Unknown error')}"
+                }), 500
 
-        if not caption_data.get("caption"):
-            return jsonify({"success": False, "message": "Caption generation returned an empty result"}), 500
+            if not caption_data.get("caption"):
+                return jsonify({"success": False, "message": f"Caption generation returned empty result for {platform}"}), 500
 
-        # Generate prompt
-        prompt = generate_post_image_prompt(
-            brand_guidelines=brand_guidelines,
-            caption_data=caption_data,
-            image_analysis=analyses
-        )
+            prompt = generate_post_image_prompt(
+                brand_guidelines=brand_guidelines,
+                caption_data=caption_data,
+                image_analysis=analyses,
+            )
 
-        # Combine captions and hashtags from caption data
-        hashtags = caption_data.get("hashtags") or []
-        caption = caption_data["caption"]
-        if hashtags:
-            caption = f"{caption}\n\n{' '.join(['#' + tag for tag in hashtags])}"
+            hashtags = caption_data.get("hashtags") or []
+            caption = caption_data["caption"]
+            if hashtags:
+                caption = f"{caption}\n\n{' '.join(['#' + tag for tag in hashtags])}"
+
+            results.append({"platform": platform, "caption": caption, "prompt": prompt})
 
         # Return to frontend for user review — not saved yet
         return jsonify({
             "success": True,
-            "prompt": prompt,
-            "caption": caption,
+            "results": results,
         }), 200
 
     except Exception as e:
