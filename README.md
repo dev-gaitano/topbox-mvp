@@ -109,4 +109,3 @@ The frontend expects the following Flask backend endpoints:
 
 - The app uses React Router for navigation
 - Selected company state is managed at the App level
-- Content data is temporarily stored in sessionStorage for review
