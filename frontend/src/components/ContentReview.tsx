@@ -13,6 +13,7 @@ interface ContentData {
   prompt?: string;
   caption?: string;
   referenceImages?: string[];
+  results?: { platform: string; caption: string; prompt: string }[];
 }
 
 function ContentReview({ companyId }: ContentReviewProps) {
@@ -23,6 +24,11 @@ function ContentReview({ companyId }: ContentReviewProps) {
   const [prompt, setPrompt] = useState('');
   const [caption, setCaption] = useState('');
   const [saving, setSaving] = useState(false);
+  const [copiedPrompt, setCopiedPrompt] = useState(false);
+  const [copiedCaption, setCopiedCaption] = useState(false);
+  const [selectedPlatform, setSelectedPlatform] = useState<string>(
+    contentData?.results?.[0]?.platform ?? contentData?.platform ?? ''
+  )
 
   useEffect(() => {
     // Load content data from session storage or fetch from API
@@ -30,6 +36,9 @@ function ContentReview({ companyId }: ContentReviewProps) {
     if (stored) {
       const data = JSON.parse(stored);
       setContentData(data);
+      const firstResult = data.results?.[0];
+      const initial = firstResult?.platform ?? data.platform ?? '';
+      setSelectedPlatform(initial);
       setPrompt(data.prompt || '');
       setCaption(data.caption || '');
     } else {
@@ -66,7 +75,7 @@ function ContentReview({ companyId }: ContentReviewProps) {
           id: contentData.id,
           companyId,
           topic: contentData.topic,
-          platform: contentData.platform,
+          platform: selectedPlatform,
           prompt,
           caption,
         }),
@@ -91,6 +100,8 @@ function ContentReview({ companyId }: ContentReviewProps) {
     if (!prompt) return;
     try {
       await navigator.clipboard.writeText(prompt);
+      setCopiedPrompt(true)
+      setTimeout(() => setCopiedPrompt(false), 2000)
     } catch (error) {
       console.error('Error copying prompt to clipboard:', error);
     }
@@ -100,6 +111,8 @@ function ContentReview({ companyId }: ContentReviewProps) {
     if (!caption) return;
     try {
       await navigator.clipboard.writeText(caption);
+      setCopiedCaption(true)
+      setTimeout(() => setCopiedCaption(false), 2000)
     } catch (error) {
       console.error('Error copying caption to clipboard:', error);
     }
@@ -120,13 +133,32 @@ function ContentReview({ companyId }: ContentReviewProps) {
       <div className="cr-review-section">
         <div className="cr-content-info">
           <div className="cr-info-item">
-            <span className="cr-info-label">Topic:</span>
             <span className="cr-info-value">{contentData.topic}</span>
           </div>
           <div className="cr-info-item">
-            <span className="cr-info-label">Platform:</span>
             <span className="cr-info-value">
-              {contentData.platform.charAt(0).toUpperCase() + contentData.platform.slice(1)}
+              <div className="cr-platform">
+                <span className="cr-info-label">Platform:</span>
+                <select
+                  className="cr-platform-select"
+                  value={selectedPlatform}
+                  onChange={(e) => {
+                    const platform = e.target.value;
+                    setSelectedPlatform(platform);
+                    const match = contentData.results?.find((r) => r.platform === platform);
+                    if (match) {
+                      setPrompt(match.prompt);
+                      setCaption(match.caption);
+                    }
+                  }}
+                >
+                  {(contentData.results ?? [{ platform: contentData.platform }]).map((r) => (
+                    <option key={r.platform} value={r.platform}>
+                      {r.platform.charAt(0).toUpperCase() + r.platform.slice(1)}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </span>
           </div>
         </div>
@@ -148,7 +180,7 @@ function ContentReview({ companyId }: ContentReviewProps) {
                   onClick={handleCopyPrompt}
                   disabled={!prompt}
                 >
-                  Copy
+                  {copiedPrompt ? 'Copied ✓' : 'Copy'}
                 </button>
               </div>
             </div>
@@ -165,6 +197,7 @@ function ContentReview({ companyId }: ContentReviewProps) {
                 {prompt || <span className="cr-placeholder">No prompt generated</span>}
               </div>
             )}
+            <button id="cr-generate-img-btn" className="btn btn-primary">Generate Image</button>
           </div>
 
           <div className="cr-editor-section">
@@ -183,7 +216,7 @@ function ContentReview({ companyId }: ContentReviewProps) {
                   onClick={handleCopyCaption}
                   disabled={!caption}
                 >
-                  Copy
+                  {copiedCaption ? 'Copied ✓' : 'Copy'}
                 </button>
               </div>
             </div>
