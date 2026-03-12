@@ -21,7 +21,11 @@ class BrandAnalysisResponseFormat(BaseModel):
         description="""5 hex colors that match the industry and vibe
             (primary, secondary, accent, text, background)"""
     )
-    typography: Optional[str] = Field(default=None, description="Typography description")
+    typeface: list[str] = Field(
+        description="""Return EXACTLY 3 short strings as a JSON array, no prose:
+            ["Heading font - <Font Name>", "Sub-heading font - <Font Name>", "Body font - <Font Name>"]
+            Example: ["Heading font - Playfair Display", "Sub-heading font - Source Sans 3", "Body font - Source Sans 3"]"""
+    )
     content_themes: list[str] = Field(description="5-10 relevant posting themes")
     target_audience: str = Field(description="Target audience description")
     posting_style: str = Field(description="Posting style description")
@@ -146,7 +150,7 @@ def generate_brand_guidelines(brand_profile: dict, uploaded_analysis: dict | Non
             return f"Error generating brand guidelines: {error_msg}"
         
         # Check if required keys exist
-        required_keys = ['brand_voice', 'color_palette', 'industry', 'target_audience', 'content_themes', 'posting_style']
+        required_keys = ['brand_voice', 'color_palette',  'typeface', 'industry', 'target_audience', 'content_themes', 'posting_style']
         missing_keys = [key for key in required_keys if key not in brand_profile]
         
         if missing_keys:
@@ -160,6 +164,9 @@ def generate_brand_guidelines(brand_profile: dict, uploaded_analysis: dict | Non
 
 ## Color Palette
 {', '.join(brand_profile['color_palette'])}
+
+## Typeface
+{', '.join(brand_profile['typeface'])}
 
 ## Industry
 {brand_profile['industry']}
