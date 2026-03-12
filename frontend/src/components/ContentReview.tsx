@@ -18,7 +18,7 @@ interface ContentData {
   results?: { platform: string; caption: string; prompt: string }[];
 }
 
-function ContentReview({ companyId, pendingContent, onClose }: ContentReviewProps) {
+function ContentReview({ companyId, pendingContent }: ContentReviewProps) {
   const navigate = useNavigate();
   const [contentData, setContentData] = useState<ContentData | null>(null);
   const [editingPrompt, setEditingPrompt] = useState(false);
