@@ -761,6 +761,68 @@ def latest_content() -> Response:
 
 
 # =====================================================
+# CONTENT LIST
+# =====================================================
+@app.route("/api/content/list", methods=["GET"])
+def list_content() -> tuple[Response, int]:
+    conn = cursor = None
+
+    try:
+        # Get company ID
+        company_id_raw = (request.args.get("companyId") or "").strip()
+        # NOTE: What does `args()` method do?
+        if not company_id_raw.isdigit():
+            return jsonify({"success": False, "message": "Invalid companyId"}), 400
+        company_id = int(company_id_raw)
+
+        # Get limit
+        limit_raw = (request.args.get("limit") or "20").strip()
+        limit = int(limit_raw) if limit_raw.isdigit() else 20
+
+        conn = db_connection()
+        cursor = conn.cursor()
+
+        # Fetch content from DB
+        cursor.execute(
+            """
+            SELECT id, company_id, topic, platform, reference_image_urls::text,
+                   prompt, caption, created_at, updated_at
+            FROM content_posts
+            WHERE company_id = %s
+            ORDER BY created_at DESC
+            LIMIT %s;
+            """,
+            (company_id, limit),
+        )
+        rows = cursor.fetchall() or []
+
+        posts = [
+            {
+                "id": r[0],
+                "companyId": r[1],
+                "topic": r[2],
+                "platform": r[3],
+                "referenceImageUrls": json.loads(r[4] or "[]"),
+                "prompt": r[5] or "",
+                "caption": r[6] or "",
+                "createdAt": r[7].isoformat() if r[7] else None,
+                "updatedAt": r[8].isoformat() if r[8] else None,
+            }
+            for r in rows
+        ]
+
+        return jsonify({"success": True, "posts": posts}), 200
+
+    except Exception as e:
+        print(traceback.format_exc())
+        return jsonify({"success": False, "message": "Failed to fetch content list", "error": str(e)}), 500
+
+    finally:
+        if cursor: cursor.close()
+        if conn: conn.close()
+
+
+# =====================================================
 # CONTENT SAVE
 # =====================================================
 @app.route("/api/content/save", methods=["POST"])

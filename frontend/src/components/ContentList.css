@@ -1,0 +1,258 @@
+/* ContentList.css – matches the app's warm brown / gold design system */
+
+.cl-wrapper {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 0 0 64px;
+}
+
+/* ── Header ── */
+.cl-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 32px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--cream-400);
+}
+
+.cl-title {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 400;
+  margin-bottom: 4px;
+}
+
+.cl-subtitle {
+  font-size: 14px;
+  color: var(--text-muted);
+  letter-spacing: 0.3px;
+}
+
+.cl-count {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+/* ── States ── */
+.cl-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 72px 32px;
+  color: var(--text-muted);
+  font-size: 15px;
+  text-align: center;
+}
+
+.cl-state--error {
+  color: var(--danger-color);
+}
+
+.cl-empty-icon {
+  font-size: 2rem;
+  color: var(--gold);
+  margin-bottom: 4px;
+}
+
+.cl-empty-hint {
+  font-size: 13px;
+  color: var(--text-muted);
+  opacity: 0.7;
+}
+
+/* Loading spinner */
+.cl-spinner {
+  width: 28px;
+  height: 28px;
+  border: 2px solid var(--cream-400);
+  border-top-color: var(--gold);
+  border-radius: 50%;
+  animation: cl-spin 0.7s linear infinite;
+}
+
+@keyframes cl-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ── List ── */
+.cl-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  /* hairline gap between cards */
+  border: 1px solid var(--cream-400);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--cream-400);
+  /* shows through the gaps */
+}
+
+/* ── Card ── */
+.cl-card {
+  background: var(--surface);
+  transition: background 0.15s;
+}
+
+.cl-card--open {
+  background: hsl(37, 45%, 98%);
+}
+
+.cl-card-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 20px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.12s;
+}
+
+.cl-card-header:hover {
+  background: var(--cream-200);
+}
+
+.cl-card-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.cl-card-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-shrink: 0;
+}
+
+/* Platform badge */
+.cl-platform-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 100px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: #fff;
+  background-color: var(--badge-color, var(--gold));
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.cl-topic {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cl-date {
+  font-size: 12px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.cl-chevron {
+  font-size: 18px;
+  color: var(--text-muted);
+  display: inline-block;
+  transition: transform 0.2s ease;
+  line-height: 1;
+}
+
+.cl-chevron--open {
+  transform: rotate(90deg);
+}
+
+/* Caption preview (collapsed) */
+.cl-caption-preview {
+  padding: 0 20px 14px 20px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.55;
+  white-space: pre-line;
+}
+
+/* ── Expanded body ── */
+.cl-card-body {
+  padding: 4px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  border-top: 1px solid var(--cream-300);
+}
+
+/* Reference images */
+.cl-images {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.cl-thumb {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--cream-400);
+  transition: border-color 0.15s, transform 0.15s;
+}
+
+.cl-thumb:hover {
+  border-color: var(--gold);
+  transform: scale(1.03);
+}
+
+/* Section */
+.cl-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.cl-section-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.cl-caption-full {
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--text-primary);
+  white-space: pre-line;
+}
+
+.cl-prompt {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  font-family: var(--font-body);
+  background: var(--cream-200);
+  border-left: 3px solid var(--gold);
+  padding: 10px 14px;
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+
+.cl-meta-line {
+  font-size: 12px;
+  color: var(--text-muted);
+  padding-top: 4px;
+}

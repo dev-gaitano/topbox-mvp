@@ -1,16 +1,15 @@
 import { useState, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Platform } from '../types';
 import './ContentCreation.css';
 
 interface ContentCreationProps {
   companyId: number;
+  onGenerated: (data: any) => void;
 }
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
 
-function ContentCreation({ companyId }: ContentCreationProps) {
-  const navigate = useNavigate();
+function ContentCreation({ companyId, onGenerated }: ContentCreationProps) {
   const [topic, setTopic] = useState('');
   const [platforms, setPlatforms] = useState<Platform[]>(['instagram']);
   const [referenceImages, setReferenceImages] = useState<File[]>([]);
@@ -99,14 +98,15 @@ function ContentCreation({ companyId }: ContentCreationProps) {
         alert('Warning: Some generated content may be missing. Please review before saving.');
       }
 
-      sessionStorage.setItem('pendingContent', JSON.stringify({
+      onGenerated({
         ...createData,
         topic,
-        platform: platforms[0],
         platforms,
         referenceImageUrls: uploadData.urls,
-      }));
-      navigate('/content/review');
+        results: createData.results ?? [
+          { platform: createData.platform, caption: createData.caption, prompt: createData.prompt }
+        ],
+      });
 
     } catch (error) {
       console.error('Content creation error:', error);

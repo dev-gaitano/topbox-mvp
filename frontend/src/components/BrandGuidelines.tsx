@@ -16,12 +16,62 @@ function BrandGuidelines({ companyId }: BrandGuidelinesProps) {
   const [generating, setGenerating] = useState(false);
   const [generatedContent, setGeneratedContent] = useState<string>('');
   const [generatedProfile, setGeneratedProfile] = useState<any | null>(null);
-  const [viewedContent, setViewedContent] = useState<string | null>(null);
+  const [uploadedAnalysis, setUploadedAnalysis] = useState<any | null>(null);
+  const [uploadedProfile, setUploadedProfile] = useState<any | null>(null);
+  const [viewedContent, setViewedContent] = useState<string | null | undefined>(undefined);
   const [viewedProfile, setViewedProfile] = useState<any | null>(null);
+
+  const getColors = (profile: any): string[] => {
+    if (!profile) return [];
+    return Array.isArray(profile.color_palette)
+      ? profile.color_palette
+      : Array.isArray(profile.generated_profile?.color_palette)
+        ? profile.generated_profile.color_palette
+        : [];
+  };
+
+  const ColorPaletteBar = ({ profile }: { profile: any }) => {
+    const colors = getColors(profile);
+    if (!colors.length) return null;
+    return (
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 12,
+          padding: '10px 16px',
+          borderBottom: '1px solid #e0e0e0',
+          backgroundColor: '#fafafa',
+          borderRadius: '4px 4px 0 0',
+          flexWrap: 'wrap',
+        }}
+      >
+        <span style={{ fontSize: 12, fontWeight: 600, color: '#555', whiteSpace: 'nowrap', fontFamily: 'sans-serif' }}>
+          Brand Colors
+        </span>
+        {colors.map((hex, i) => (
+          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div
+              title={hex}
+              style={{
+                width: 20,
+                height: 20,
+                backgroundColor: hex,
+                borderRadius: 3,
+                border: '1px solid rgba(0,0,0,0.15)',
+                flexShrink: 0,
+              }}
+            />
+            <span style={{ fontSize: 11, color: '#666', fontFamily: 'monospace' }}>{hex}</span>
+          </div>
+        ))}
+      </div>
+    );
+  };
 
   const handleViewMode = async () => {
     setUploadMode('view');
-    setViewedContent(null); // reset to loading state
+    setViewedContent(undefined); // reset to loading state
     setViewedProfile(null);
     try {
       const res = await fetch(`${API_BASE}/api/brand-guidelines/${companyId}`);
@@ -46,6 +96,8 @@ function BrandGuidelines({ companyId }: BrandGuidelinesProps) {
 
     try {
       setUploading(true);
+      setUploadedAnalysis(null);
+      setUploadedProfile(null);
       const formData = new FormData();
       formData.append('file', uploadedFile);
       formData.append('companyId', companyId.toString());
@@ -56,6 +108,9 @@ function BrandGuidelines({ companyId }: BrandGuidelinesProps) {
       });
 
       if (response.ok) {
+        const data = await response.json();
+        setUploadedAnalysis(data.analysis ?? null);
+        setUploadedProfile(data.profile ?? null);
         alert('Brand guidelines uploaded successfully!');
         setUploadedFile(null);
       } else {
@@ -183,6 +238,33 @@ function BrandGuidelines({ companyId }: BrandGuidelinesProps) {
               )}
             </div>
           </form>
+          {uploadedAnalysis && (
+            <div className="bg-upload-analysis" style={{ marginTop: 24 }}>
+              <h3>Uploaded File Analysis</h3>
+              <div
+                className="bg-content-preview"
+                style={{
+                  backgroundColor: '#f5f5f5',
+                  borderRadius: '4px',
+                  maxHeight: '500px',
+                  overflowY: 'auto',
+                  border: '1px solid #e0e0e0',
+                }}
+              >
+                {uploadedProfile && <ColorPaletteBar profile={uploadedProfile} />}
+                <pre style={{
+                  whiteSpace: 'pre-wrap',
+                  fontFamily: 'monospace',
+                  fontSize: '14px',
+                  lineHeight: '1.6',
+                  margin: 0,
+                  padding: '16px',
+                }}>
+                  {JSON.stringify(uploadedAnalysis, null, 2)}
+                </pre>
+              </div>
+            </div>
+          )}
         </div>
       ) : uploadMode === 'view' ? (
         <div className="bg-view-section">
@@ -192,22 +274,60 @@ function BrandGuidelines({ companyId }: BrandGuidelinesProps) {
             <p>No brand guidelines have been saved for this company yet.</p>
           ) : (
             <div>
-              <div className="bg-content-preview" style={{ whiteSpace: 'pre-wrap', backgroundColor: '#f5f5f5', padding: '16px', borderRadius: '4px', maxHeight: '500px', overflowY: 'auto', fontFamily: 'monospace', fontSize: '14px', lineHeight: '1.6' }}>
-                {viewedContent}
+              <div className="bg-content-preview" style={{ backgroundColor: '#f5f5f5', borderRadius: '4px', maxHeight: '500px', overflowY: 'auto', border: '1px solid #e0e0e0' }}>
+                {viewedProfile && <ColorPaletteBar profile={viewedProfile} />}
+                <textarea
+                  value={viewedContent || ''}
+                  onChange={(e) => setViewedContent(e.target.value)}
+                  style={{
+                    width: '100%',
+                    minHeight: '300px',
+                    border: 'none',
+                    outline: 'none',
+                    resize: 'vertical',
+                    backgroundColor: 'transparent',
+                    fontFamily: 'monospace',
+                    fontSize: '14px',
+                    lineHeight: '1.6',
+                    whiteSpace: 'pre-wrap',
+                    padding: '16px',
+                    boxSizing: 'border-box',
+                  }}
+                />
               </div>
-              {viewedProfile && Array.isArray(viewedProfile.color_palette) && (
-                <div style={{ marginTop: 12 }}>
-                  <h4>Color Palette</h4>
-                  <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                    {viewedProfile.color_palette.map((hex: string, i: number) => (
-                      <div key={i} style={{ textAlign: 'center' }}>
-                        <div style={{ width: 48, height: 48, backgroundColor: hex, borderRadius: 4, border: '1px solid #ddd' }} />
-                        <div style={{ fontSize: 12, marginTop: 6 }}>{hex}</div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+              <button
+                className="btn btn-secondary"
+                style={{ marginTop: 12 }}
+                onClick={async () => {
+                  if (!viewedContent) {
+                    alert('Nothing to save.');
+                    return;
+                  }
+                  try {
+                    const response = await fetch(`${API_BASE}/api/brand-guidelines/save`, {
+                      method: 'POST',
+                      headers: {
+                        'Content-Type': 'application/json',
+                      },
+                      body: JSON.stringify({
+                        companyId,
+                        content: viewedContent,
+                      }),
+                    });
+                    if (response.ok) {
+                      alert('Brand guidelines saved!');
+                    } else {
+                      const data = await response.json().catch(() => null);
+                      alert(`Failed to save guidelines: ${data?.message || response.statusText}`);
+                    }
+                  } catch (error) {
+                    console.error('Error saving guidelines:', error);
+                    alert('Error saving guidelines');
+                  }
+                }}
+              >
+                Save Changes
+              </button>
             </div>
           )}
         </div>
@@ -231,37 +351,55 @@ function BrandGuidelines({ companyId }: BrandGuidelinesProps) {
           {generatedContent && (
             <div className="bg-generated-content">
               <h3>Generated Brand Guidelines</h3>
-              <div className="bg-content-preview" style={{ whiteSpace: 'pre-wrap', backgroundColor: '#f5f5f5', padding: '16px', borderRadius: '4px', maxHeight: '500px', overflowY: 'auto', fontFamily: 'monospace', fontSize: '14px', lineHeight: '1.6' }}>
-                {generatedContent}
+              <div className="bg-content-preview" style={{ backgroundColor: '#f5f5f5', borderRadius: '4px', maxHeight: '500px', overflowY: 'auto', border: '1px solid #e0e0e0' }}>
+                {generatedProfile && <ColorPaletteBar profile={generatedProfile} />}
+                <textarea
+                  value={generatedContent}
+                  onChange={(e) => setGeneratedContent(e.target.value)}
+                  style={{
+                    width: '100%',
+                    minHeight: '300px',
+                    border: 'none',
+                    outline: 'none',
+                    resize: 'vertical',
+                    backgroundColor: 'transparent',
+                    fontFamily: 'monospace',
+                    fontSize: '14px',
+                    lineHeight: '1.6',
+                    whiteSpace: 'pre-wrap',
+                    padding: '16px',
+                    boxSizing: 'border-box',
+                  }}
+                />
               </div>
-              {generatedProfile && Array.isArray(generatedProfile.color_palette) && (
-                <div style={{ marginTop: 12 }}>
-                  <h4>Color Palette</h4>
-                  <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                    {generatedProfile.color_palette.map((hex: string, i: number) => (
-                      <div key={i} style={{ textAlign: 'center' }}>
-                        <div style={{ width: 48, height: 48, backgroundColor: hex, borderRadius: 4, border: '1px solid #ddd' }} />
-                        <div style={{ fontSize: 12, marginTop: 6 }}>{hex}</div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
               <button
                 className="btn btn-secondary"
-                onClick={() => {
-                  fetch(`${API_BASE}/api/brand-guidelines/save`, {
-                    method: 'POST',
-                    headers: {
-                      'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                      companyId,
-                      content: generatedContent,
-                    }),
-                  }).then(() => {
-                    alert('Brand guidelines saved!');
-                  });
+                onClick={async () => {
+                  if (!generatedContent) {
+                    alert('Nothing to save.');
+                    return;
+                  }
+                  try {
+                    const response = await fetch(`${API_BASE}/api/brand-guidelines/save`, {
+                      method: 'POST',
+                      headers: {
+                        'Content-Type': 'application/json',
+                      },
+                      body: JSON.stringify({
+                        companyId,
+                        content: generatedContent,
+                      }),
+                    });
+                    if (response.ok) {
+                      alert('Brand guidelines saved!');
+                    } else {
+                      const data = await response.json().catch(() => null);
+                      alert(`Failed to save guidelines: ${data?.message || response.statusText}`);
+                    }
+                  } catch (error) {
+                    console.error('Error saving guidelines:', error);
+                    alert('Error saving guidelines');
+                  }
                 }}
               >
                 Save Guidelines

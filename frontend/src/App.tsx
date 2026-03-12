@@ -1,10 +1,11 @@
 // App.tsx
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Analytics } from '@vercel/analytics/react'
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import CompanySelection from './components/CompanySelection';
 import BrandGuidelines from './components/BrandGuidelines';
 import ContentCreation from './components/ContentCreation';
+import ContentList from './components/ContentList';
 import ContentReview from './components/ContentReview';
 import Navigation from './components/Navigation';
 import NewCompanyForm from './components/NewCompanyForm';
@@ -13,6 +14,11 @@ import './App.css';
 
 function App() {
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
+  const [pendingContent, setPendingContent] = useState<any | null>(null)
+
+  useEffect(() => {
+    setPendingContent(null);
+  }, [selectedCompany])
 
   return (
     <Router>
@@ -35,7 +41,17 @@ function App() {
                       <BrandGuidelines companyId={selectedCompany.id} />
                       <br />
                       <br />
-                      <ContentCreation companyId={selectedCompany.id} />
+                      <ContentCreation companyId={selectedCompany.id} onGenerated={setPendingContent} />
+                      {pendingContent && (
+                        <>
+                          <br />
+                          <ContentReview
+                            companyId={selectedCompany.id}
+                            pendingContent={pendingContent}
+                            onClose={() => setPendingContent(null)}
+                          />
+                        </>
+                      )}
                     </>
                   )}
                 </>
@@ -46,10 +62,10 @@ function App() {
               element={<NewCompanyForm onSuccess={setSelectedCompany} />}
             />
             <Route
-              path="/content/review"
+              path="/content"
               element={
                 selectedCompany ? (
-                  <ContentReview companyId={selectedCompany.id} />
+                  <ContentList companyId={selectedCompany.id} companyName={selectedCompany.name} />
                 ) : (
                   <Navigate to="/" replace />
                 )
