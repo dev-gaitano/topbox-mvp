@@ -68,6 +68,7 @@ The frontend expects the following Flask backend endpoints:
 ### Content
 - `POST /api/content/create` - Create new content post
 - `GET /api/content/latest` - Get latest content for a company
+- `GET /api/content/list` - Get latest 20 content for a company
 - `POST /api/content/save` - Save content with prompt and caption
 
 ## Project Structure
