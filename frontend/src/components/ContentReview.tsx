@@ -4,6 +4,8 @@ import './ContentReview.css';
 
 interface ContentReviewProps {
   companyId: number;
+  pendingContent: any;
+  onClose: () => void
 }
 
 interface ContentData {
@@ -16,7 +18,7 @@ interface ContentData {
   results?: { platform: string; caption: string; prompt: string }[];
 }
 
-function ContentReview({ companyId }: ContentReviewProps) {
+function ContentReview({ companyId, pendingContent, onClose }: ContentReviewProps) {
   const navigate = useNavigate();
   const [contentData, setContentData] = useState<ContentData | null>(null);
   const [editingPrompt, setEditingPrompt] = useState(false);
@@ -31,35 +33,12 @@ function ContentReview({ companyId }: ContentReviewProps) {
   )
 
   useEffect(() => {
-    // Load content data from session storage or fetch from API
-    const stored = sessionStorage.getItem('pendingContent');
-    if (stored) {
-      const data = JSON.parse(stored);
-      setContentData(data);
-      const firstResult = data.results?.[0];
-      const initial = firstResult?.platform ?? data.platform ?? '';
-      setSelectedPlatform(initial);
-      setPrompt(data.prompt || '');
-      setCaption(data.caption || '');
-    } else {
-      // If no stored data, fetch from API
-      fetchContentData();
-    }
-  }, []);
-
-  const fetchContentData = async () => {
-    try {
-      const response = await fetch(`/api/content/latest?companyId=${companyId}`);
-      if (response.ok) {
-        const data = await response.json();
-        setContentData(data);
-        setPrompt(data.prompt || '');
-        setCaption(data.caption || '');
-      }
-    } catch (error) {
-      console.error('Error fetching content:', error);
-    }
-  };
+    setContentData(pendingContent);
+    const firstResult = pendingContent.results?.[0];
+    setSelectedPlatform(firstResult?.platform ?? pendingContent.platform ?? '');
+    setPrompt(firstResult?.prompt ?? pendingContent.prompt ?? '');
+    setCaption(firstResult?.caption ?? pendingContent.caption ?? '');
+  }, [pendingContent]);
 
   const handleSave = async () => {
     if (!contentData) return;
@@ -83,8 +62,6 @@ function ContentReview({ companyId }: ContentReviewProps) {
 
       if (response.ok) {
         alert('Content saved successfully!');
-        sessionStorage.removeItem('pendingContent');
-        navigate('/content');
       } else {
         alert('Failed to save content');
       }
@@ -128,8 +105,6 @@ function ContentReview({ companyId }: ContentReviewProps) {
 
   return (
     <div className="cr-wrapper">
-      <h1>Review Generated Content</h1>
-
       <div className="cr-review-section">
         <div className="cr-content-info">
           <div className="cr-info-item">
