@@ -1,8 +1,5 @@
 .company-selection {
-  height: 320px;
-  display: flex;
-  flex-direction: column;
-  gap: 32px;
+  height: 278px;
 }
 
 .cs-container {
@@ -13,9 +10,26 @@
 
 .cs-add-new {
   height: 100%;
-  width: 120px;
+  min-width: 120px;
   background-color: var(--text-more-muted);
   display: flex;
   justify-content: center;
   align-items: center;
+  border-radius: 16px;
+}
+
+.cs-carousel {
+  display: flex;
+  gap: 32px;
+  overflow: auto;
+}
+
+.cs-company-item {
+  height: 100%;
+  min-width: 192px;
+  background-color: var(--text-muted);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 16px;
 }

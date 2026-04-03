@@ -1,0 +1,27 @@
+.single-content-creation {
+  height: 306px;
+  display: flex;
+  gap: 32px;
+}
+
+.scc-left {
+  width: 836px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.scc-inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.scc-options {
+  display: flex;
+  gap: 32px;
+}
+
+.scc-options select {
+  width: 402px;
+}

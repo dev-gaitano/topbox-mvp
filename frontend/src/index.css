@@ -46,6 +46,10 @@ p {
   font-size: 20px;
 }
 
+button {
+  border: none;
+}
+
 .root-container {
   background-color: var(--primary);
   background-image:
@@ -67,6 +71,9 @@ p {
   border: solid 1px green;
   width: 100%;
   padding: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
 }
 
 .section-title {
@@ -79,4 +86,34 @@ p {
   opacity: 0.2;
   font-weight: 700;
   font-size: 24px;
+}
+
+.upload-area {
+  background-color: var(--text-muted);
+  border-radius: 0 16px 16px 0;
+  flex-grow: 1;
+}
+
+.btn-primary {
+  background-color: var(--text);
+  height: 80px;
+  border-radius: 999px;
+}
+
+.btn-secondary {
+  background-color: var(--text);
+  height: 80px;
+  border-radius: 999px;
+}
+
+.input-primary {
+  background-color: var(--text-more-muted);
+  height: 80px;
+  border-radius: 999px;
+}
+
+.dropdown-primary {
+  background-color: var(--text-muted);
+  height: 80px;
+  border-radius: 999px;
 }

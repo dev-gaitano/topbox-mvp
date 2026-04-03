@@ -4,7 +4,7 @@ function Header() {
   return (
     <header className="section header-section">
       <p className="random-symbols">&gt; |</p>
-      <div></div>
+      <div className="user-profile btn-primary"></div>
     </header>
   )
 }

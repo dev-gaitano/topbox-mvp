@@ -1,8 +1,12 @@
 /* Header section */
 .header-section {
-  height: 96px;
+  height: 80px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 40px;
+}
+
+.user-profile {
+  width: 200px;
 }

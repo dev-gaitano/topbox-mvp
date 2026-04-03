@@ -15,6 +15,20 @@ function CompanySelection() {
             <rect x="22" y="8" width="4" height="32" rx="1" fill="#FFFFFF" />
           </svg>
         </div>
+        <div className="cs-carousel">
+          <div className="cs-company-item"></div>
+          <div className="cs-company-item"></div>
+          <div className="cs-company-item"></div>
+          <div className="cs-company-item"></div>
+          <div className="cs-company-item"></div>
+          <div className="cs-company-item"></div>
+          <div className="cs-company-item"></div>
+          <div className="cs-company-item"></div>
+          <div className="cs-company-item"></div>
+          <div className="cs-company-item"></div>
+          <div className="cs-company-item"></div>
+          <div className="cs-company-item"></div>
+        </div>
       </div>
     </section>
   )

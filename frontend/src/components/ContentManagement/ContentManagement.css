@@ -1,3 +1,22 @@
-.content-creation {
+.content-management {
   height: 565px;
+}
+
+.cm-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.cm-selector {
+  border: solid 1px white;
+  border-radius: 999px;
+  display: flex;
+  justify-content: flex-start;
+  gap: 32px;
+}
+
+.cm-selector button {
+  width: 568px;
 }
