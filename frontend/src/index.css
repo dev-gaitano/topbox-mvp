@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+
 *,
 *::before,
 *::after {
@@ -15,9 +17,33 @@
   --text-more-muted: hsla(0, 0%, 67%, 1);
 }
 
-h1,
-h2 {
+body {
   color: var(--text);
+}
+
+h1 {
+  font-family: "Bebas Neue", sans-serif;
+  font-size: 96px;
+  font-weight: 400;
+  font-style: normal;
+  letter-spacing: 0.08em;
+}
+
+h2 {
+  font-family: "Inter", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 700;
+  font-style: normal;
+  letter-spacing: 0.08em;
+  font-size: 20px;
+}
+
+p {
+  font-family: "Inter", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 20px;
 }
 
 .root-container {
@@ -25,7 +51,6 @@ h2 {
   background-image:
     radial-gradient(ellipse 100% 30% at 44% -3%, var(--background) 0% 15%, var(--secondary) 35%, transparent 55%),
     radial-gradient(circle at 65% 80%, var(--background) 0% 28%, var(--secondary) 45%, transparent 60%);
-  /*height: 280vh;*/
   min-height: 100vh;
   min-width: 100vw;
   display: flex;
@@ -48,4 +73,11 @@ h2 {
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+.random-symbols {
+  color: var(--text);
+  opacity: 0.2;
+  font-weight: 700;
+  font-size: 24px;
 }

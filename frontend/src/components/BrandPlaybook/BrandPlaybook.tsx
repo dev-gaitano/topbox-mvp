@@ -3,9 +3,9 @@ import './BrandPlaybook.css';
 function BrandPlaybook() {
   return (
     <section className="brand-playbook component">
-      <div className='section-title'>
+      <div className="section-title">
         <h2>+ BRAND PLAYBOOK</h2>
-        <p>////</p>
+        <p className="random-symbols">////</p>
       </div>
       <div></div>
     </section>

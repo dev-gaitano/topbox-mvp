@@ -3,7 +3,9 @@ import './CompanySelection.css'
 function CompanySelection() {
   return (
     <section className="company-selection component">
-      <h2>+ COMPANIES</h2>
+      <div className='section-title'>
+        <h2>+ COMPANIES</h2>
+      </div>
       <div className="cs-container">
         <div className="cs-add-new">
           <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" width="80" height="80">

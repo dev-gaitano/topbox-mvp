@@ -12,7 +12,7 @@ function Footer() {
         </svg>
         <h1>TOPBOX STUDIOS</h1>
       </div>
-      <p>STAY AHEAD</p>
+      <h2>STAY AHEAD</h2>
     </footer>
   )
 }
