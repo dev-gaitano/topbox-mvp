@@ -24,13 +24,13 @@ h2 {
   background-color: var(--primary);
   background-image:
     radial-gradient(ellipse 100% 30% at 44% -3%, var(--background) 0% 15%, var(--secondary) 35%, transparent 55%),
-    radial-gradient(circle at 70% 80%, var(--background) 0% 30%, var(--secondary) 50%, transparent 65%);
+    radial-gradient(circle at 65% 80%, var(--background) 0% 28%, var(--secondary) 45%, transparent 60%);
   /*height: 280vh;*/
   min-height: 100vh;
   min-width: 100vw;
   display: flex;
   flex-direction: column;
-  padding: 48px 40px;
+  padding: 48px 48px;
 }
 
 .section {
@@ -42,4 +42,10 @@ h2 {
   border: solid 1px green;
   width: 100%;
   padding: 40px;
+}
+
+.section-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }

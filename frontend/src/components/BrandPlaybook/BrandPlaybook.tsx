@@ -3,7 +3,7 @@ import './BrandPlaybook.css';
 function BrandPlaybook() {
   return (
     <section className="brand-playbook component">
-      <div>
+      <div className='section-title'>
         <h2>+ BRAND PLAYBOOK</h2>
         <p>////</p>
       </div>

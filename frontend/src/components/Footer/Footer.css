@@ -1,4 +1,9 @@
 /* Footer section */
 .footer-section {
   height: 250px;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  text-align: right;
 }

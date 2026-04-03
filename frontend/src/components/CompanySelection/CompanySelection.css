@@ -14,5 +14,8 @@
 .cs-add-new {
   height: 100%;
   width: 120px;
-  background-color: var(--text);
+  background-color: var(--text-more-muted);
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
