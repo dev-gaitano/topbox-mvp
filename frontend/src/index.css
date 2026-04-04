@@ -59,7 +59,7 @@ button {
   min-width: 100vw;
   display: flex;
   flex-direction: column;
-  padding: 48px 48px;
+  padding: 48px;
 }
 
 .section {
@@ -92,12 +92,6 @@ button {
   background-color: var(--text-muted);
   border-radius: 0 16px 16px 0;
   flex-grow: 1;
-}
-
-.btn-primary {
-  background-color: var(--text);
-  height: 80px;
-  border-radius: 999px;
 }
 
 .btn-secondary {

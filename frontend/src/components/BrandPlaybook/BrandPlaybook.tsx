@@ -1,4 +1,5 @@
 import './BrandPlaybook.css';
+import ButtonPrimary from '../ui/ButtonPrimary';
 
 function BrandPlaybook() {
   return (
@@ -10,7 +11,7 @@ function BrandPlaybook() {
       <div className="pb-container">
         <div className="pb-upload-container">
           <div className="upload-area"></div>
-          <button className="btn-primary"></button>
+          <ButtonPrimary />
         </div>
         <div className="pb-preview"></div>
       </div>
@@ -18,4 +19,4 @@ function BrandPlaybook() {
   )
 }
 
-export default BrandPlaybook
+export default BrandPlaybook;

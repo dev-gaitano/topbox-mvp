@@ -1,0 +1,9 @@
+.btn-primary {
+  background-color: var(--text);
+  height: 80px;
+  border-radius: 999px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}

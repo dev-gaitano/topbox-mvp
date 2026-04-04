@@ -1,7 +1,3 @@
-.company-selection {
-  height: 278px;
-}
-
 .cs-container {
   display: flex;
   gap: 32px;
@@ -9,7 +5,7 @@
 }
 
 .cs-add-new {
-  height: 100%;
+  min-height: 140px;
   min-width: 120px;
   background-color: var(--text-more-muted);
   display: flex;

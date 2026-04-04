@@ -1,4 +1,5 @@
 import './SingleContentCreation.css'
+import ButtonPrimary from '../ui/ButtonPrimary'
 
 function SingleContentCreation() {
   return (
@@ -12,7 +13,7 @@ function SingleContentCreation() {
             <select className="dropdown-primary"></select>
           </div>
         </div>
-        <button className="btn-primary"></button>
+        <ButtonPrimary />
       </div>
     </div>
   )
