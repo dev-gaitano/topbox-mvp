@@ -13,6 +13,10 @@
   gap: 32px;
 }
 
+.pb-upload-container .btn-primary {
+  width: 568px;
+}
+
 .pb-preview {
   flex-grow: 1;
   height: 100%;

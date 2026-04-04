@@ -48,12 +48,7 @@ p {
 
 button {
   border: none;
-  height: 80px;
   width: 100%;
-  border-radius: 999px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
 }
 
 .root-container {
@@ -69,12 +64,12 @@ button {
 }
 
 .section {
-  border: solid 1px blue;
+  /*border: solid 1px blue;*/
   width: 100%;
 }
 
 .component {
-  border: solid 1px green;
+  /*border: solid 1px green;*/
   width: 100%;
   padding: 40px;
   display: flex;
@@ -99,6 +94,47 @@ button {
   border-radius: 0 16px 16px 0;
   flex-grow: 1;
   width: 100%;
+}
+
+.btn-primary {
+  height: 80px;
+  border-radius: 999px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  overflow: hidden;
+  transition: opacity 0.26s ease-out;
+  filter: drop-shadow(-8px -10px 46px #0000005f);
+  backdrop-filter: brightness(1.1) blur(2px) url(#displacementFilter);
+  position: relative;
+  color: var(--text-muted);
+}
+
+.btn-primary p {
+  font-weight: 700;
+}
+
+.btn-primary p {
+  position: relative;
+  z-index: 1;
+}
+
+.btn-primary .arrow-outwards {
+  height: 24px;
+}
+
+.btn-primary::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  border-radius: 999px;
+  -webkit-box-shadow: inset 2px 2px 0px -2px rgba(255, 255, 255, 0.7),
+    inset 0 0 3px 1px rgba(255, 255, 255, 0.7);
+  box-shadow: inset 6px 6px 0px -6px rgba(255, 255, 255, 0.7),
+    inset 0 0 8px 1px rgba(255, 255, 255, 0.7);
 }
 
 .btn-secondary {
