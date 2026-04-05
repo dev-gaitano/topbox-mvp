@@ -36,7 +36,7 @@ h2 {
   font-weight: 700;
   font-style: normal;
   letter-spacing: 0.1em;
-  font-size: 20px;
+  font-size: 16px;
 }
 
 p {
@@ -44,7 +44,7 @@ p {
   font-optical-sizing: auto;
   font-weight: 400;
   font-style: normal;
-  font-size: 20px;
+  font-size: 16px;
 }
 
 button {
@@ -61,7 +61,7 @@ button {
   min-width: 100vw;
   display: flex;
   flex-direction: column;
-  padding: 48px;
+  padding: 24px;
 }
 
 .section {
@@ -72,10 +72,10 @@ button {
 .component {
   /*border: solid 1px green;*/
   width: 100%;
-  padding: 40px;
+  padding: 24px 0;
   display: flex;
   flex-direction: column;
-  gap: 32px;
+  gap: 24px;
 }
 
 .section-title {
@@ -92,15 +92,15 @@ button {
 
 .upload-area {
   background-color: var(--text-muted);
-  border-radius: 0 16px 16px 0;
+  border-radius: 16px;
   flex-grow: 1;
   width: 100%;
   cursor: pointer;
 }
 
 .btn-primary {
-  height: 80px;
-  border-radius: 999px;
+  height: 56px;
+  border-radius: 16px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -114,6 +114,19 @@ button {
   cursor: pointer;
 }
 
+.btn-primary::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  border-radius: 16px;
+  -webkit-box-shadow: inset 2px 2px 0px -2px rgba(255, 255, 255, 0.7),
+    inset 0 0 3px 1px rgba(255, 255, 255, 0.7);
+  box-shadow: inset 6px 6px 0px -6px rgba(255, 255, 255, 0.7),
+    inset 0 0 8px 1px rgba(255, 255, 255, 0.7);
+}
+
 .btn-primary p {
   position: relative;
   z-index: 1;
@@ -124,23 +137,10 @@ button {
   height: 24px;
 }
 
-.btn-primary::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  overflow: hidden;
-  border-radius: 999px;
-  -webkit-box-shadow: inset 2px 2px 0px -2px rgba(255, 255, 255, 0.7),
-    inset 0 0 3px 1px rgba(255, 255, 255, 0.7);
-  box-shadow: inset 6px 6px 0px -6px rgba(255, 255, 255, 0.7),
-    inset 0 0 8px 1px rgba(255, 255, 255, 0.7);
-}
-
 .btn-secondary {
   background-color: var(--text);
-  height: 80px;
-  border-radius: 999px;
+  height: 56px;
+  border-radius: 16px;
   color: var(--background);
   cursor: pointer;
 }
@@ -150,13 +150,24 @@ button {
 }
 
 .input-primary {
-  background-color: var(--text-more-muted);
-  height: 80px;
+  background: none;
+  color: var(--text-disabled);
+  border: solid 0.5px var(--text-more-muted);
+  height: 56px;
   border-radius: 999px;
+}
+
+.input-primary::placeholder {
+  font-family: "Inter", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 16px;
+  text-align: center;
 }
 
 .dropdown-primary {
   background-color: var(--text-muted);
-  height: 80px;
+  height: 56px;
   border-radius: 999px;
 }

@@ -1,7 +1,7 @@
 .pb-container {
   height: 301px;
   display: flex;
-  gap: 32px;
+  gap: 16px;
 }
 
 .pb-upload-container {
@@ -69,5 +69,12 @@
 .pb-summary {
   background-color: var(--text-muted);
   height: 100%;
-  clip-path: path("M 16,72 L 160,72 A 32,32 0,0,0 192,40 L 192,16 A 16,16 0,0,1 208,0 L 1192,0 A 16,16 0,0,1 1208,16 L 1208,285 A 16,16 0,0,1 1192,301 L 16,301 A 16,16 0,0,1 0,285 L 0,88 A 16,16 0,0,1 16,72 Z");
+  clip-path: path("M 16,72 L 160,72 A 32,32 0,0,0 192,40 L 192,16 A 16,16 0,0,1 208,0 L 816,0 A 16,16 0,0,1 832,16 L 832,285 A 16,16 0,0,1 816,301 L 16,301 A 16,16 0,0,1 0,285 L 0,88 A 16,16 0,0,1 16,72 Z");
+}
+
+.pb-saved-content {
+  width: 504px;
+  height: 301px;
+  background-color: var(--text-muted);
+  border-radius: 16px;
 }

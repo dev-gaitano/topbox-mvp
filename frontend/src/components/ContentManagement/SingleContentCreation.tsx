@@ -1,12 +1,11 @@
-import './SingleContentCreation.css'
+import "./SingleContentCreation.css"
 
 function SingleContentCreation() {
   return (
     <div className="single-content-creation">
-      <div className="upload-area"></div>
       <div className="scc-left">
         <div className="scc-inputs">
-          <input className="input-primary" />
+          <input className="input-primary" placeholder="Post topic e.g Adventure highlights" />
           <div className="scc-options">
             <select className="dropdown-primary"></select>
             <select className="dropdown-primary"></select>
@@ -27,6 +26,7 @@ function SingleContentCreation() {
           </svg>
         </div>
       </div>
+      <div className="scc-upload-area"></div>
     </div>
   )
 }

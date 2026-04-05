@@ -16,6 +16,7 @@ function BrandPlaybook() {
           </div>
           <div className="pb-summary"></div>
         </div>
+        <div className="pb-saved-content"></div>
         <div className="pb-upload-container">
           <div className="pb-upload-area"></div>
           <div className="btn-primary">

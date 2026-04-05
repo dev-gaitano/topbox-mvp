@@ -1,23 +1,41 @@
 .cm-container {
   width: 100%;
   display: flex;
+  gap: 16px;
+}
+
+.cm-content {
+  flex-grow: 1;
+  display: flex;
   flex-direction: column;
-  gap: 32px;
+  gap: 16px;
+  position: relative;
 }
 
 .cm-selector {
   border: solid 1px var(--text-disabled);
-  border-radius: 999px;
+  width: 1024px;
+  border-radius: 16px;
   display: flex;
-  justify-content: flex-start;
-  gap: 32px;
+  justify-content: space-between;
+  gap: 16px;
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 
 .cm-selector button {
-  width: 568px;
+  width: 504px;
 }
 
 .cm-selector .inactive {
   background: none;
   color: var(--text-disabled);
+}
+
+.cm-saved-content {
+  width: 504px;
+  height: 272px;
+  background-color: var(--text-muted);
+  border-radius: 16px;
 }

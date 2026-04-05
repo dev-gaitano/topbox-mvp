@@ -1,12 +1,12 @@
 .cs-container {
   display: flex;
-  gap: 32px;
+  gap: 16px;
   height: 100%;
 }
 
 .cs-add-new {
-  min-height: 140px;
-  min-width: 120px;
+  min-height: 100px;
+  min-width: 132px;
   border-radius: 16px;
   display: flex;
   justify-content: center;
@@ -35,13 +35,13 @@
 
 .cs-carousel {
   display: flex;
-  gap: 32px;
+  gap: 16px;
   overflow: auto;
 }
 
 .cs-company-item {
   height: 100%;
-  min-width: 192px;
+  min-width: 170px;
   background-color: var(--text-muted);
   display: flex;
   justify-content: center;
