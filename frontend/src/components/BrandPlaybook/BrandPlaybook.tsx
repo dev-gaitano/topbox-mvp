@@ -1,4 +1,4 @@
-import './BrandPlaybook.css';
+import "./BrandPlaybook.css";
 
 function BrandPlaybook() {
   return (
@@ -8,8 +8,16 @@ function BrandPlaybook() {
         <p className="random-symbols">////</p>
       </div>
       <div className="pb-container">
+        <div className="pb-preview">
+          <div className="pb-preview-options">
+            <p>o</p>
+            <p>o</p>
+            <p>o</p>
+          </div>
+          <div className="pb-summary"></div>
+        </div>
         <div className="pb-upload-container">
-          <div className="upload-area"></div>
+          <div className="pb-upload-area"></div>
           <div className="btn-primary">
             <p>Upload guidelines</p>
             <svg className="arrow-outwards" xmlns="http://www.w3.org/2000/svg" height="48px" viewBox="0 -960 960 960" width="48px" fill="#D9D9D9">
@@ -25,9 +33,8 @@ function BrandPlaybook() {
             </svg>
           </div>
         </div>
-        <div className="pb-preview"></div>
       </div>
-    </section>
+    </section >
   )
 }
 

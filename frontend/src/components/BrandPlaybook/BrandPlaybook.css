@@ -1,25 +1,73 @@
 .pb-container {
-  height: 389px;
+  height: 301px;
   display: flex;
   gap: 32px;
 }
 
 .pb-upload-container {
   align-items: center;
-  width: 568px;
+  width: 504px;
   height: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 32px;
+  position: relative;
+}
+
+.pb-upload-area {
+  background-color: var(--text-muted);
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  clip-path: path("M 16,0 L 488,0 A 16,16 0,0,1 504, 16 L 504,213 A 16,16 0,0,1 488,229 L 284,229 A 32,32 0,0,0 252,261 L 252,285 A 16,16 0,0,1 237,301 L 16,301 A 16,16 0,0,1 0,285 L 0,16 A 16,16 0,0,1 16,0 Z");
 }
 
 .pb-upload-container .btn-primary {
-  width: 568px;
+  width: 236px;
+  position: absolute;
+  bottom: 0;
+  right: 0;
 }
 
 .pb-preview {
   flex-grow: 1;
   height: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
+.pb-preview-options {
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  height: 56px;
+  width: 176px;
+  border-radius: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  overflow: hidden;
+  transition: opacity 0.26s ease-out;
+  filter: drop-shadow(-8px -10px 46px #0000005f);
+  backdrop-filter: brightness(1.1) blur(2px) url(#displacementFilter);
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.pb-preview-options::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  border-radius: 16px;
+  -webkit-box-shadow: inset 2px 2px 0px -2px rgba(255, 255, 255, 0.7),
+    inset 0 0 3px 1px rgba(255, 255, 255, 0.7);
+  box-shadow: inset 6px 6px 0px -6px rgba(255, 255, 255, 0.7),
+    inset 0 0 8px 1px rgba(255, 255, 255, 0.7);
+}
+
+.pb-summary {
   background-color: var(--text-muted);
-  border-radius: 16px 0 0 16px;
+  height: 100%;
+  clip-path: path("M 16,72 L 160,72 A 32,32 0,0,0 192,40 L 192,16 A 16,16 0,0,1 208,0 L 1192,0 A 16,16 0,0,1 1208,16 L 1208,285 A 16,16 0,0,1 1192,301 L 16,301 A 16,16 0,0,1 0,285 L 0,88 A 16,16 0,0,1 16,72 Z");
 }
