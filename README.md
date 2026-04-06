@@ -107,5 +107,4 @@ The frontend expects the following Flask backend endpoints:
 
 ## Notes
 
-- The app uses React Router for navigation
 - Selected company state is managed at the App level
