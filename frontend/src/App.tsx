@@ -1,82 +1,31 @@
-// App.tsx
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import Header from './components/Header/Header';
+import Main from './components/Main/Main';
+import Footer from './components/Footer/Footer';
 import { Analytics } from '@vercel/analytics/react'
-import { useState, useEffect } from 'react';
-import CompanySelection from './components/CompanySelection';
-import BrandGuidelines from './components/BrandGuidelines';
-import ContentCreation from './components/ContentCreation';
-import ContentList from './components/ContentList';
-import ContentReview from './components/ContentReview';
-import Navigation from './components/Navigation';
-import NewCompanyForm from './components/NewCompanyForm';
-import { Company } from './types';
-import './App.css';
 
 function App() {
-  const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
-  const [pendingContent, setPendingContent] = useState<any | null>(null)
-
-  useEffect(() => {
-    setPendingContent(null);
-  }, [selectedCompany])
-
   return (
-    <Router>
-      <div className="app">
-        <Navigation selectedCompany={selectedCompany} />
-        <main className="main-content">
-          <Routes>
-            <Route
-              path="/"
-              element={
-                <>
-                  <CompanySelection
-                    selectedCompany={selectedCompany}
-                    onSelectCompany={setSelectedCompany}
-                  />
-                  <br />
-                  <br />
-                  {selectedCompany && (
-                    <>
-                      <BrandGuidelines companyId={selectedCompany.id} />
-                      <br />
-                      <br />
-                      <ContentCreation companyId={selectedCompany.id} onGenerated={setPendingContent} />
-                      {pendingContent && (
-                        <>
-                          <br />
-                          <ContentReview
-                            companyId={selectedCompany.id}
-                            pendingContent={pendingContent}
-                            onClose={() => setPendingContent(null)}
-                          />
-                        </>
-                      )}
-                    </>
-                  )}
-                </>
-              }
-            />
-            <Route
-              path="/companies/new"
-              element={<NewCompanyForm onSuccess={setSelectedCompany} />}
-            />
-            <Route
-              path="/content"
-              element={
-                selectedCompany ? (
-                  <ContentList companyId={selectedCompany.id} companyName={selectedCompany.name} />
-                ) : (
-                  <Navigate to="/" replace />
-                )
-              }
-            />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </main>
-        <Analytics />
+    <div className="app">
+      <div className="root-container">
+        {Array.from({ length: 40 }).map((_, i) => (
+          <div key={i} style={{
+            position: "absolute",
+            top: `${Math.random() * 100}%`,
+            left: `${Math.random() * 100}%`,
+            width: Math.random() > 0.8 ? 2 : 1,
+            height: Math.random() > 0.8 ? 2 : 1,
+            borderRadius: "50%",
+            background: "rgba(255,255,255,0.6)",
+            animation: `twinkle ${2 + Math.random() * 4}s ease-in-out infinite`,
+            animationDelay: `${Math.random() * 4}s`,
+          }} />
+        ))}
+        <Header />
+        <Main />
+        <Footer />
       </div>
-    </Router>
+      <Analytics />
+    </div>
   );
 }
 

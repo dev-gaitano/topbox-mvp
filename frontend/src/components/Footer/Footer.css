@@ -1,0 +1,36 @@
+/* Footer section */
+.footer-section {
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  text-align: right;
+}
+
+.footer-section h2 {
+  color: var(--text-more-muted);
+  font-size: 24px;
+}
+
+/* ── Tablet ─────────────────────────────────────── */
+@media (max-width: 1100px) {
+  .footer-section {
+    padding: 24px 16px;
+  }
+
+  .footer-section h2 {
+    font-size: 20px;
+  }
+}
+
+/* ── Mobile ─────────────────────────────────────── */
+@media (max-width: 767px) {
+  .footer-section {
+    padding: 16px 4px;
+    gap: 8px;
+  }
+
+  .footer-section h2 {
+    font-size: 16px;
+  }
+}

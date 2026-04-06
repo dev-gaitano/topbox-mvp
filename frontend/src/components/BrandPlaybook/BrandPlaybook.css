@@ -1,0 +1,178 @@
+.pb-container {
+  height: 301px;
+  display: flex;
+  gap: 16px;
+}
+
+.pb-upload-container {
+  align-items: center;
+  width: 504px;
+  height: 100%;
+  position: relative;
+}
+
+.pb-upload-area {
+  background-color: var(--text-muted);
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  clip-path: path("M 16,0 L 488,0 A 16,16 0,0,1 504, 16 L 504,213 A 16,16 0,0,1 488,229 L 284,229 A 32,32 0,0,0 252,261 L 252,285 A 16,16 0,0,1 237,301 L 16,301 A 16,16 0,0,1 0,285 L 0,16 A 16,16 0,0,1 16,0 Z");
+}
+
+.pb-upload-container .btn-primary {
+  width: 236px;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+}
+
+.pb-preview {
+  flex-grow: 1;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
+.pb-preview-options {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 56px;
+  width: 176px;
+  border-radius: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  overflow: hidden;
+  transition: opacity 0.26s ease-out;
+  filter: drop-shadow(-8px -10px 46px #0000005f);
+  backdrop-filter: brightness(1.1) blur(2px) url(#displacementFilter);
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.pb-preview-options::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  border-radius: 16px;
+  -webkit-box-shadow: inset 2px 2px 0px -2px rgba(255, 255, 255, 0.7),
+    inset 0 0 3px 1px rgba(255, 255, 255, 0.7);
+  box-shadow: inset 6px 6px 0px -6px rgba(255, 255, 255, 0.7),
+    inset 0 0 8px 1px rgba(255, 255, 255, 0.7);
+}
+
+.pb-summary {
+  background-color: var(--text-muted);
+  height: 100%;
+  clip-path: path("M 16,72 L 160,72 A 32,32 0,0,0 192,40 L 192,16 A 16,16 0,0,1 208,0 L 816,0 A 16,16 0,0,1 832,16 L 832,285 A 16,16 0,0,1 816,301 L 16,301 A 16,16 0,0,1 0,285 L 0,88 A 16,16 0,0,1 16,72 Z");
+}
+
+.pb-saved-content {
+  width: 504px;
+  height: 301px;
+  background-color: var(--text-muted);
+  border-radius: 16px;
+}
+
+/* ── 1440px ──────────────────────────────────────────────────────────────
+   Scale fixed widths by 0.75 (504 → 378).
+   pb-preview = 1392 - 378 - 378 - 32 = 604px → clip-path right edge: 604
+   pb-upload-container = 378px → clip-path canvas: 378×301
+   btn-primary = 178px (≈ 236 × 0.75)
+   ──────────────────────────────────────────────────────────────────────── */
+@media (max-width: 1440px) {
+  .pb-upload-container {
+    width: 378px;
+  }
+
+  /* x-coords × 0.75, y-coords unchanged (height stays 301px) */
+  .pb-upload-area {
+    clip-path: path("M 12,0 L 366,0 A 16,16 0,0,1 378,16 L 378,213 A 16,16 0,0,1 366,229 L 213,229 A 32,32 0,0,0 189,261 L 189,285 A 16,16 0,0,1 178,301 L 12,301 A 16,16 0,0,1 0,285 L 0,16 A 16,16 0,0,1 12,0 Z");
+  }
+
+  .pb-upload-container .btn-primary {
+    width: 178px;
+  }
+
+  /* Notch (for 176px button) is positionally fixed; only right edge moves:
+     816 → 588 (604−16),  832 → 604 */
+  .pb-summary {
+    clip-path: path("M 16,72 L 160,72 A 32,32 0,0,0 192,40 L 192,16 A 16,16 0,0,1 208,0 L 588,0 A 16,16 0,0,1 604,16 L 604,285 A 16,16 0,0,1 588,301 L 16,301 A 16,16 0,0,1 0,285 L 0,88 A 16,16 0,0,1 16,72 Z");
+  }
+
+  .pb-saved-content {
+    width: 378px;
+  }
+}
+
+/* ── Tablet: stack vertically, replace clip-paths with border-radius ───── */
+@media (max-width: 1100px) {
+  .pb-container {
+    height: auto;
+    flex-wrap: wrap;
+  }
+
+  .pb-upload-container {
+    width: 100%;
+    height: 220px;
+    order: 1;
+  }
+
+  .pb-upload-area {
+    clip-path: none;
+    border-radius: 16px;
+  }
+
+  .pb-upload-container .btn-primary {
+    width: 220px;
+  }
+
+  .pb-preview {
+    width: 100%;
+    height: 220px;
+    order: 2;
+  }
+
+  .pb-summary {
+    clip-path: none;
+    border-radius: 16px;
+  }
+
+  .pb-saved-content {
+    width: 100%;
+    height: 180px;
+    order: 3;
+  }
+}
+
+/* ── Mobile ─────────────────────────────────────── */
+@media (max-width: 767px) {
+  .pb-container {
+    gap: 12px;
+  }
+
+  .pb-upload-container {
+    height: 180px;
+  }
+
+  .pb-upload-container .btn-primary {
+    width: 180px;
+  }
+
+  .pb-preview {
+    height: 180px;
+  }
+
+  .pb-saved-content {
+    height: 140px;
+  }
+
+  .pb-preview-options {
+    width: 140px;
+    height: 48px;
+  }
+}
