@@ -4,12 +4,12 @@ function CompanySelection() {
   const companies = [
     {
       id: 1,
-      name: "company1",
+      name: "React",
       logo: "https://res.cloudinary.com/diwkfbsgv/image/upload/v1775547583/logo-00_hwbp2y.jpg"
     },
     {
       id: 2,
-      name: "companyName",
+      name: "Medi",
       logo: "https://res.cloudinary.com/diwkfbsgv/image/upload/v1775547584/logo-02_godffk.jpg"
     },
     {
@@ -19,7 +19,7 @@ function CompanySelection() {
     },
     {
       id: 4,
-      name: "companyName",
+      name: "Niche",
       logo: "https://res.cloudinary.com/diwkfbsgv/image/upload/v1775547583/logo-01_ibxa7x.jpg"
     },
     {
@@ -29,37 +29,37 @@ function CompanySelection() {
     },
     {
       id: 6,
-      name: "companyName",
+      name: "Brew bean",
       logo: "https://res.cloudinary.com/diwkfbsgv/image/upload/v1775547583/logo-06_ukevib.jpg"
     },
     {
       id: 7,
-      name: "companyName",
+      name: "White circle",
       logo: "https://res.cloudinary.com/diwkfbsgv/image/upload/v1775547583/logo-07_tcwnsu.jpg"
     },
     {
       id: 8,
-      name: "companyName",
+      name: "Pushy",
       logo: "https://res.cloudinary.com/diwkfbsgv/image/upload/v1775547588/logo-10_rqooqc.jpg"
     },
     {
       id: 9,
-      name: "companyName",
+      name: "Filomena",
       logo: "https://res.cloudinary.com/diwkfbsgv/image/upload/v1775547586/logo-09_zihzoz.jpg"
     },
     {
       id: 10,
-      name: "companyName",
+      name: "Legacy",
       logo: "https://res.cloudinary.com/diwkfbsgv/image/upload/v1775547584/logo-08_xtry5a.jpg"
     },
     {
       id: 11,
-      name: "companyName",
+      name: "Taup studio",
       logo: "https://res.cloudinary.com/diwkfbsgv/image/upload/v1775548625/logo-11_kks8ca.jpg"
     },
     {
       id: 12,
-      name: "companyName",
+      name: "Swoop",
       logo: "https://res.cloudinary.com/diwkfbsgv/image/upload/v1775547583/logo-03_rxioom.jpg"
     },
   ]
