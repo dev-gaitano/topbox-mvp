@@ -1,6 +1,70 @@
-import './CompanySelection.css'
+import "./CompanySelection.css"
 
 function CompanySelection() {
+  const companies = [
+    {
+      id: 1,
+      name: "company1",
+      logo: "https://res.cloudinary.com/diwkfbsgv/image/upload/v1775547583/logo-00_hwbp2y.jpg"
+    },
+    {
+      id: 2,
+      name: "companyName",
+      logo: "https://res.cloudinary.com/diwkfbsgv/image/upload/v1775547584/logo-02_godffk.jpg"
+    },
+    {
+      id: 3,
+      name: "Nixta",
+      logo: "https://res.cloudinary.com/diwkfbsgv/image/upload/v1775546445/logo-04_jk3niz.jpg"
+    },
+    {
+      id: 4,
+      name: "companyName",
+      logo: "https://res.cloudinary.com/diwkfbsgv/image/upload/v1775547583/logo-01_ibxa7x.jpg"
+    },
+    {
+      id: 5,
+      name: "Knötra",
+      logo: "https://res.cloudinary.com/diwkfbsgv/image/upload/v1775547583/logo-05_v5rq5f.jpg"
+    },
+    {
+      id: 6,
+      name: "companyName",
+      logo: "https://res.cloudinary.com/diwkfbsgv/image/upload/v1775547583/logo-06_ukevib.jpg"
+    },
+    {
+      id: 7,
+      name: "companyName",
+      logo: "https://res.cloudinary.com/diwkfbsgv/image/upload/v1775547583/logo-07_tcwnsu.jpg"
+    },
+    {
+      id: 8,
+      name: "companyName",
+      logo: "https://res.cloudinary.com/diwkfbsgv/image/upload/v1775547588/logo-10_rqooqc.jpg"
+    },
+    {
+      id: 9,
+      name: "companyName",
+      logo: "https://res.cloudinary.com/diwkfbsgv/image/upload/v1775547586/logo-09_zihzoz.jpg"
+    },
+    {
+      id: 10,
+      name: "companyName",
+      logo: "https://res.cloudinary.com/diwkfbsgv/image/upload/v1775547584/logo-08_xtry5a.jpg"
+    },
+    {
+      id: 11,
+      name: "companyName",
+      logo: "https://res.cloudinary.com/diwkfbsgv/image/upload/v1775548625/logo-11_kks8ca.jpg"
+    },
+    {
+      id: 12,
+      name: "companyName",
+      logo: "https://res.cloudinary.com/diwkfbsgv/image/upload/v1775547583/logo-03_rxioom.jpg"
+    },
+  ]
+
+
   return (
     <section className="company-selection component">
       <div className='section-title'>
@@ -16,18 +80,11 @@ function CompanySelection() {
           </svg>
         </div>
         <div className="cs-carousel">
-          <div className="cs-company-item"></div>
-          <div className="cs-company-item"></div>
-          <div className="cs-company-item"></div>
-          <div className="cs-company-item"></div>
-          <div className="cs-company-item"></div>
-          <div className="cs-company-item"></div>
-          <div className="cs-company-item"></div>
-          <div className="cs-company-item"></div>
-          <div className="cs-company-item"></div>
-          <div className="cs-company-item"></div>
-          <div className="cs-company-item"></div>
-          <div className="cs-company-item"></div>
+          {companies.map((company) => (
+            <div className="cs-company-item">
+              <img className="cs-company-logo" src={company.logo} alt="logo-img" />
+            </div>
+          ))}
         </div>
       </div>
     </section>
