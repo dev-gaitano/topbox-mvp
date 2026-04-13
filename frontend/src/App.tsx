@@ -2,11 +2,8 @@ import Header from './components/Header/Header';
 import Main from './components/Main/Main';
 import Footer from './components/Footer/Footer';
 import { Analytics } from '@vercel/analytics/react'
-import { useState } from 'react';
 
 function App() {
-  const [selectedCompany, setSelectedCompany] = useState(null)
-
   return (
     <div className="app">
       <div className="root-container">

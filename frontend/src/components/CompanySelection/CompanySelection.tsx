@@ -173,7 +173,7 @@ function CompanySelection({ selectedCompany, onSelectCompany }: CompanySelection
           {companies.map((company) => (
             <div
               key={company.id}
-              onClick={() => onSelectCompany(company)}
+              onClick={() => onSelectCompany?.(company)}
               className={`cs-company-item ${selectedCompany?.id === company.id ? "selected" : ""}`}
             >
               <img className="cs-company-logo" src={company.logo} alt="logo-img" />
