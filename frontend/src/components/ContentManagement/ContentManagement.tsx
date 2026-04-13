@@ -1,6 +1,8 @@
 import "./ContentManagement.css"
 import SingleContentCreation from "./SingleContentCreation"
 import RolloutContentCreation from "./RolloutContentCreation"
+import SavedContent from "./SavedContent"
+
 import { useState } from "react"
 
 function ContentManagement() {
@@ -23,7 +25,7 @@ function ContentManagement() {
         <p className="random-symbols">+-------</p>
       </div>
       <div className="cm-container">
-        <div className="cm-saved-content"></div>
+        <SavedContent />
         <div className="cm-content">
           <div className={`cm-selector ${contentCreationMode ? "set-right" : "set-left"}`}>
             <button className="btn-secondary" onClick={handleContentCreationMode}>
