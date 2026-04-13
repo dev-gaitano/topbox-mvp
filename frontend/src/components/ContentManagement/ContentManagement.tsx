@@ -1,7 +1,7 @@
 import "./ContentManagement.css"
 import SingleContentCreation from "./SingleContentCreation"
 import RolloutContentCreation from "./RolloutContentCreation"
-import { useState, useEffect } from "react"
+import { useState } from "react"
 
 function ContentManagement() {
   const [contentCreationMode, setContentCreationMode] = useState(0)
