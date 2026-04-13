@@ -47,6 +47,7 @@
 }
 
 .cs-company-item {
+  position: relative;
   height: 100px;
   width: 170px;
   background-color: var(--text-muted);
@@ -64,7 +65,18 @@
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+}
 
+.selected .cs-company-name {
+  position: absolute;
+  width: 170px;
+  height: 100px;
+  text-align: center;
+  backdrop-filter: blur(8px);
+  border-radius: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 /* ── 768px ─────────────────────────────────────────────────────────────── */

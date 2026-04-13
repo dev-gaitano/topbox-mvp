@@ -139,26 +139,6 @@
   width: 48px;
 }
 
-#color1 {
-  background-color: #2C5F52;
-}
-
-#color2 {
-  background-color: #3A2F28;
-}
-
-#color3 {
-  background-color: #C4895A;
-}
-
-#color4 {
-  background-color: #F2EDE6;
-}
-
-#color5 {
-  background-color: #FFFFFF;
-}
-
 .pb-saved-content {
   width: 504px;
   height: 301px;
@@ -259,6 +239,10 @@
     text-align: left;
     align-items: flex-start;
     border-radius: 48px;
+  }
+
+  .pb-description {
+    order: 2;
   }
 
   .pantones {
