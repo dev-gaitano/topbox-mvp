@@ -107,4 +107,4 @@ The frontend expects the following Flask backend endpoints:
 
 ## Notes
 
-- Selected company state is managed at the App level
+- Selected company state is managed at "Main.tsx"
