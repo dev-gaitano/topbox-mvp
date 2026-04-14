@@ -75,7 +75,7 @@ def analyze_brand(questionnaire_data: dict) -> dict[str, Any]:
 
 
 # Analyze uploaded brand guidelines
-def analyze_uploaded_guidelines(uploaded_file: FileStorage) -> dict[str, Any]:
+def analyze_guidelines(uploaded_file: FileStorage) -> dict[str, Any]:
     try:
         # Get file
         file_bytes = uploaded_file.read()
@@ -99,7 +99,7 @@ def analyze_uploaded_guidelines(uploaded_file: FileStorage) -> dict[str, Any]:
         # Return the required data
         return response["structured_response"].model_dump()
     except Exception as e:
-        print(f"Error in analyze_uploaded_guidelines(): {str(e)}")
+        print(f"Error in analyze_guidelines(): {str(e)}")
         return {
             "success": False,
             "message": "Error analyzing uploaded guidelines",
@@ -108,7 +108,7 @@ def analyze_uploaded_guidelines(uploaded_file: FileStorage) -> dict[str, Any]:
 
 
 # Merge brand guidelines
-def merge_brand_profiles(generated_profile: dict, uploaded_analysis: dict) -> dict[str, Any]:
+def merge_guidelines(generated_profile: dict, uploaded_analysis: dict) -> dict[str, Any]:
     try:
         # Invoke the agent
         response = guideline_merging_agent.invoke({
@@ -142,7 +142,7 @@ def merge_brand_profiles(generated_profile: dict, uploaded_analysis: dict) -> di
 def generate_brand_guidelines(brand_profile: dict, uploaded_analysis: dict | None = None) -> str:
     try:
         if uploaded_analysis and "brand_voice" in uploaded_analysis:
-            brand_profile = merge_brand_profiles(brand_profile, uploaded_analysis)
+            brand_profile = merge_guidelines(brand_profile, uploaded_analysis)
 
         # Check if brand_profile is an error response
         if "success" in brand_profile and not brand_profile.get("success"):

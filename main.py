@@ -10,8 +10,8 @@ import traceback
 import cloudinary
 import cloudinary.uploader
 
-from brandAgent import analyze_brand, analyze_uploaded_guidelines, generate_brand_guidelines
-from contentAgent import analyze_images, generate_post_caption, generate_post_image_prompt, generate_image
+from brandAgent import analyze_brand, analyze_guidelines, generate_brand_guidelines
+from contentAgent import analyze_images, generate_caption, generate_image_prompt, generate_image
 
 # Load environment variables
 load_dotenv()
@@ -293,7 +293,7 @@ def upload_brand_guidelines() -> tuple[Response, int]:
             }), 400
 
         filename = secure_filename(file.filename)
-        uploaded_analysis = analyze_uploaded_guidelines(file)
+        uploaded_analysis = analyze_guidelines(file)
 
         if uploaded_analysis.get("success") is False:
             return jsonify({
@@ -655,7 +655,7 @@ def create_content() -> tuple[Response, int]:
         # Generate a caption + prompt for every selected platform
         results: list[dict] = []
         for platform in platforms:
-            caption_data = generate_post_caption(
+            caption_data = generate_caption(
                 brand_guidelines=brand_guidelines,
                 post_topic=topic,
                 platform=platform,
@@ -671,7 +671,7 @@ def create_content() -> tuple[Response, int]:
             if not caption_data.get("caption"):
                 return jsonify({"success": False, "message": f"Caption generation returned empty result for {platform}"}), 500
 
-            prompt = generate_post_image_prompt(
+            prompt = generate_image_prompt(
                 brand_guidelines=brand_guidelines,
                 caption_data=caption_data,
                 image_analysis=analyses,
