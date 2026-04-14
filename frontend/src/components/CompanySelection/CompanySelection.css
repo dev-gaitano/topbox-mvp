@@ -68,6 +68,13 @@
   background-repeat: no-repeat;
 }
 
+.selected {
+  order: -1;
+  left: 0;
+  z-index: 10;
+  position: sticky;
+}
+
 .selected .cs-company-name {
   position: absolute;
   width: 170px;
