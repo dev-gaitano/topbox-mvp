@@ -20,7 +20,7 @@ function SingleContentCreation() {
             <defs>
               <filter id="displacementFilter">
                 <feTurbulence type="turbulence" baseFrequency="0.01" numOctaves="2" result="turbulence" />
-                <feDisplacementMap in="SourceGraphic" in2="turbulence" scale="200" xChannelSelector="R" yChannelSelector="G" />
+                <feDisplacementMap in="SourceGraphic" in2="displacementMap" xChannelSelector="R" yChannelSelector="G" scale="200" />
               </filter>
             </defs>
           </svg>

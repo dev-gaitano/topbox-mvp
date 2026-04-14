@@ -20,11 +20,46 @@ function BrandPlaybook({ selectedCompany }: CompanySelectionProps) {
       <section className="brand-playbook component">
         <div className="section-title">
           <h2>+ BRAND PLAYBOOK</h2>
+          <p className="random-symbols">////</p>
         </div>
         <div className="pb-container">
-          <p style={{ color: "white", padding: "2rem" }}>Select a company to view its playbook.</p>
+          {screenWidth <= 1100 ? (
+            <div className="pb-summary" style={{ width: "100%" }}>
+              <p style={{ width: "100%", padding: "2rem" }}>Select a company to view its playbook.</p>
+            </div>
+          ) : (
+            <div className="pb-preview">
+              <div className="pb-preview-options">
+                <svg style={{ display: 'none' }}>
+                  <defs>
+                    <filter id="displacementFilter">
+                      <feTurbulence type="turbulence" baseFrequency="0.01" numOctaves="2" result="turbulence" />
+                      <feDisplacementMap in="SourceGraphic" in2="displacementMap" xChannelSelector="R" yChannelSelector="G" scale="200" />
+                    </filter>
+                  </defs>
+                </svg>
+              </div>
+              <div className="pb-summary"></div>
+            </div>
+          )}
+          <div className="pb-saved-content"></div>
+          <div className="pb-upload-container">
+            <div className="pb-upload-area">
+              <div className="pb-inner-border"></div>
+            </div>
+            <div className="btn-primary">
+              <svg style={{ display: 'none' }}>
+                <defs>
+                  <filter id="displacementFilter">
+                    <feTurbulence type="turbulence" baseFrequency="0.01" numOctaves="2" result="turbulence" />
+                    <feDisplacementMap in="SourceGraphic" in2="displacementMap" xChannelSelector="R" yChannelSelector="G" scale="200" />
+                  </filter>
+                </defs>
+              </svg>
+            </div>
+          </div>
         </div>
-      </section>
+      </section >
     )
   }
 
@@ -40,6 +75,14 @@ function BrandPlaybook({ selectedCompany }: CompanySelectionProps) {
             <p>o</p>
             <p>o</p>
             <p>o</p>
+            <svg style={{ display: 'none' }}>
+              <defs>
+                <filter id="displacementFilter">
+                  <feTurbulence type="turbulence" baseFrequency="0.01" numOctaves="2" result="turbulence" />
+                  <feDisplacementMap in="SourceGraphic" in2="displacementMap" xChannelSelector="R" yChannelSelector="G" scale="200" />
+                </filter>
+              </defs>
+            </svg>
           </div>
           <div className="pb-summary">
             <div className="pb-summary-header">
@@ -71,7 +114,16 @@ function BrandPlaybook({ selectedCompany }: CompanySelectionProps) {
             </div>
           </div>
         </div>
-        <div className="pb-saved-content"></div>
+        <div className="pb-saved-content">
+          <svg style={{ display: 'none' }}>
+            <defs>
+              <filter id="displacementFilter">
+                <feTurbulence type="turbulence" baseFrequency="0.01" numOctaves="2" result="turbulence" />
+                <feDisplacementMap in="SourceGraphic" in2="displacementMap" xChannelSelector="R" yChannelSelector="G" scale="200" />
+              </filter>
+            </defs>
+          </svg>
+        </div>
         <div className="pb-upload-container">
           <div className="pb-upload-area">
             <div className="pb-inner-border"></div>

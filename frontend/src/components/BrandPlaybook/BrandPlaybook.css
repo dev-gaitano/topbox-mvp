@@ -79,6 +79,10 @@
   gap: 24px;
 }
 
+.pb-summary>p:nth-child(1) {
+  width: 832px;
+}
+
 .pb-summary h1 {
   font-size: 56px;
 }
@@ -263,6 +267,8 @@
     text-align: left;
     align-items: flex-start;
     border-radius: 48px;
+    min-height: 113px;
+    padding: 24px;
   }
 
   .pb-description {
