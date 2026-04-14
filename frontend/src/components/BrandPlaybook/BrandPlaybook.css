@@ -231,6 +231,11 @@
     right: 24px;
     width: 48px;
     height: 48px;
+    border-radius: 24px;
+  }
+
+  .pb-preview-options::before {
+    border-radius: 24px;
   }
 
   .pb-summary {
@@ -266,6 +271,14 @@
   .pb-upload-area {
     clip-path: none;
     border-radius: 48px;
+    padding: 24px;
+  }
+
+  .pb-inner-border {
+    height: 100%;
+    border: dashed 1px var(--text-muted);
+    border-radius: 24px;
+    mask-image: linear-gradient(to bottom right, black 70%, transparent 80%);
   }
 
   .pb-upload-container .btn-primary {
@@ -273,6 +286,11 @@
     bottom: 24px;
     right: 24px;
     gap: 8px;
+    border-radius: 24px;
+  }
+
+  .pb-upload-container .btn-primary::before {
+    border-radius: 24px;
   }
 
   .btn-primary .arrow-outwards {
@@ -298,6 +316,11 @@
     top: 16px;
     left: auto;
     right: 16px;
+    border-radius: 16px;
+  }
+
+  .pb-preview-options::before {
+    border-radius: 16px;
   }
 
   .pb-summary {
@@ -308,6 +331,12 @@
 
   .pb-summary-header {
     padding: 0;
+    width: 100%;
+  }
+
+  .pb-summary-header h1 {
+    width: 100%;
+    mask-image: linear-gradient(to right, black 65%, transparent 80%);
   }
 
   .pb-summary>div:nth-child(2) {
@@ -339,12 +368,22 @@
 
   .pb-upload-area {
     border-radius: 32px;
+    padding: 16px;
+  }
+
+  .pb-inner-border {
+    border-radius: 16px;
   }
 
   .pb-upload-container .btn-primary {
     width: 120px;
     bottom: 16px;
     right: 16px;
+    border-radius: 16px;
+  }
+
+  .pb-upload-container .btn-primary::before {
+    border-radius: 16px;
   }
 
   .btn-primary .arrow-outwards {

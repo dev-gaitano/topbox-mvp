@@ -66,6 +66,8 @@
   .cm-selector {
     position: relative;
     width: 100%;
+    padding: 8px;
+    border-radius: 32px;
   }
 
   .cm-selector button {
@@ -76,9 +78,16 @@
 
 /* ── 768px ─────────────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
+  .cm-container {
+    gap: 12px;
+  }
+
+  .cm-content {
+    gap: 12px;
+  }
+
   .cm-selector {
     gap: 8px;
-    padding: 8px;
     border-radius: 24px;
     justify-content: flex-end;
   }

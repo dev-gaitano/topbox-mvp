@@ -40,6 +40,7 @@
   overflow-x: auto;
   scrollbar-width: none;
   -ms-overflow-style: none;
+  border-radius: 16px;
 }
 
 .cs-carousel::-webkit-scrollbar {
@@ -81,6 +82,14 @@
 
 /* ── 768px ─────────────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
+  .cs-container {
+    gap: 12px;
+  }
+
+  .cs-carousel {
+    gap: 12px;
+  }
+
   .cs-add-new {
     min-width: 80px;
     min-height: 80px;

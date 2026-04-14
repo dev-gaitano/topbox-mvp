@@ -73,7 +73,9 @@ function BrandPlaybook({ selectedCompany }: CompanySelectionProps) {
         </div>
         <div className="pb-saved-content"></div>
         <div className="pb-upload-container">
-          <div className="pb-upload-area"></div>
+          <div className="pb-upload-area">
+            <div className="pb-inner-border"></div>
+          </div>
           <div className="btn-primary">
             {screenWidth <= 1280 ? (
               <p>Upload</p>

@@ -26,7 +26,9 @@ function SingleContentCreation() {
           </svg>
         </div>
       </div>
-      <div className="scc-upload-area"></div>
+      <div className="scc-upload-area">
+        <div className="scc-inner-border"></div>
+      </div>
     </div>
   )
 }
