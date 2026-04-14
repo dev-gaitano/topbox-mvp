@@ -167,6 +167,14 @@ function CompanySelection({ selectedCompany, onSelectCompany }: CompanySelection
             {/* Vertical bar */}
             <rect x="22" y="8" width="4" height="32" rx="1" fill="#FFFFFF" />
           </svg>
+          <svg style={{ display: 'none' }}>
+            <defs>
+              <filter id="displacementFilter">
+                <feTurbulence type="turbulence" baseFrequency="0.01" numOctaves="2" result="turbulence" />
+                <feDisplacementMap in="SourceGraphic" in2="displacementMap" xChannelSelector="R" yChannelSelector="G" scale="200" />
+              </filter>
+            </defs>
+          </svg>
         </div>
         <div className="cs-carousel">
           {/* Map saved companies */}

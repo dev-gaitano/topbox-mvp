@@ -29,7 +29,16 @@ function BrandPlaybook({ selectedCompany }: CompanySelectionProps) {
             </div>
           ) : (
             <div className="pb-preview">
-              <div className="pb-preview-options"></div>
+              <div className="pb-preview-options">
+                <svg style={{ display: 'none' }}>
+                  <defs>
+                    <filter id="displacementFilter">
+                      <feTurbulence type="turbulence" baseFrequency="0.01" numOctaves="2" result="turbulence" />
+                      <feDisplacementMap in="SourceGraphic" in2="displacementMap" xChannelSelector="R" yChannelSelector="G" scale="200" />
+                    </filter>
+                  </defs>
+                </svg>
+              </div>
               <div className="pb-summary"></div>
             </div>
           )}
@@ -66,6 +75,14 @@ function BrandPlaybook({ selectedCompany }: CompanySelectionProps) {
             <p>o</p>
             <p>o</p>
             <p>o</p>
+            <svg style={{ display: 'none' }}>
+              <defs>
+                <filter id="displacementFilter">
+                  <feTurbulence type="turbulence" baseFrequency="0.01" numOctaves="2" result="turbulence" />
+                  <feDisplacementMap in="SourceGraphic" in2="displacementMap" xChannelSelector="R" yChannelSelector="G" scale="200" />
+                </filter>
+              </defs>
+            </svg>
           </div>
           <div className="pb-summary">
             <div className="pb-summary-header">
@@ -97,7 +114,16 @@ function BrandPlaybook({ selectedCompany }: CompanySelectionProps) {
             </div>
           </div>
         </div>
-        <div className="pb-saved-content"></div>
+        <div className="pb-saved-content">
+          <svg style={{ display: 'none' }}>
+            <defs>
+              <filter id="displacementFilter">
+                <feTurbulence type="turbulence" baseFrequency="0.01" numOctaves="2" result="turbulence" />
+                <feDisplacementMap in="SourceGraphic" in2="displacementMap" xChannelSelector="R" yChannelSelector="G" scale="200" />
+              </filter>
+            </defs>
+          </svg>
+        </div>
         <div className="pb-upload-container">
           <div className="pb-upload-area">
             <div className="pb-inner-border"></div>
