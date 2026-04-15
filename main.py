@@ -25,7 +25,7 @@ CORS(app, resources={
             "origins": [
             "http://localhost:3000", # Local
             "https://topbox-mvp-git-dev-dev-gaitanos-projects.vercel.app", # dev
-            "https://topbox-mvp.vercel.app" # Prod
+            "https://topbox-agency.vercel.app" # Prod
             ],
             "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
             "allow_headers": ["Content-Type", "Authorization"],
@@ -55,9 +55,9 @@ def get_companies() -> tuple[Response, int]:
 
         # Get all companies from database
         cursor.execute("""
-                       SELECT id, name, industry, email, monthly_budget,
-                       description, target_audience, unique_value,
-                       main_competitors, brand_personality, brand_tone, created_at
+                       SELECT id, name, logo, industry, email, description,
+                       target_audience, color_palette, unique_value,
+                       main_competitors, personality, tone, created_at
                        FROM companies ORDER BY created_at;
                        """)
         rows = cursor.fetchall() or []
@@ -67,16 +67,17 @@ def get_companies() -> tuple[Response, int]:
             {
                 "id": r[0],
                 "name": r[1],
-                "industry": r[2],
-                "email": r[3],
-                "monthly_budget": r[4],
+                "logo": r[2],
+                "industry": r[3],
+                "email": r[4],
                 "description": r[5],
                 "target_audience": r[6],
-                "unique_value": r[7],
-                "main_competitors": r[8],
-                "brand_personality": r[9],
-                "brand_tone": r[10],
-                "createdAt": r[11].isoformat() if r[11] else None,
+                "color_palette": r[7],
+                "unique_value": r[8],
+                "main_competitors": r[9],
+                "personality": r[10],
+                "tone": r[11],
+                "createdAt": r[12].isoformat() if r[11] else None,
             }
             for r in rows
         ]
