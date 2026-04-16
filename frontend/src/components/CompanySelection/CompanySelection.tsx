@@ -16,10 +16,16 @@ function CompanySelection({ selectedCompany, onSelectCompany }: CompanySelection
     const fetchCompanies = async () => {
       try {
         const res = await fetch(`${API_BASE}/api/companies`)
-        const resJson = await res.json()
-        setCompanies(resJson)
+        if (res.ok) {
+          const resJson = await res.json()
+          setCompanies(resJson)
+        } else {
+          console.error('Failed to fetch companies');
+          console.log(res)
+        }
       } catch (e) {
         console.error('Error fetching companies:', e);
+        setCompanies([])
       }
     }
 
