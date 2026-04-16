@@ -42,7 +42,7 @@ post_image_prompt_gen_agent = create_agent(
 
 
 # Generate post caption
-def generate_post_caption(
+def generate_caption(
     brand_guidelines: str,
     post_topic: str,
     platform: str,
@@ -164,7 +164,7 @@ def analyze_images(public_image_urls: list[str]) -> dict:
 
 
 # Generate image prompt
-def generate_post_image_prompt(
+def generate_image_prompt(
     brand_guidelines: str,
     caption_data: dict,
     image_analysis: dict | list
