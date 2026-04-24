@@ -4,7 +4,6 @@
 </div>
 
 <br />
-<br />
 
 TopBox is an AI powered content management system that helps teams create, organize, update, and publish digital content across multiple platforms.
 
