@@ -85,7 +85,6 @@ The frontend expects the following Flask backend endpoints:
 │   ├── schema.sql                      # DB schema
 │   ├── Dockerfile                      # Backend container config
 │   ├── .env                            # Secrets (local)
-│   ├── credentials.json                # Google API key (local)
 │   └── agents/                         # AI Agent logic
 │       ├── agentSetup.py               # Shared AI config
 │       ├── brandAgent.py               # Brand analysis agent
